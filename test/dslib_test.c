@@ -16,7 +16,7 @@
 #include "dslib_test.h"
 
 // Test objects
-static GBuf *buf_test = NULL;
+static DSBuffer *buf_test = NULL;
 static GList *list_test = NULL;
 static GDict *dict_test = NULL;
 static int gdict_collision_cap = 0;
@@ -32,145 +32,145 @@ static unsigned int dict_test_hash(void *obj);
  */
 
 void buf_test_setup(void) {
-    buf_test = gbuf_new_buffer(10);
+    buf_test = dsbuf_new_buffer(10);
     CU_ASSERT_FATAL(buf_test != NULL);
 }
 
 void buf_test_teardown(void) {
-    gbuf_destroy(buf_test);
+    dsbuf_destroy(buf_test);
     buf_test = NULL;
 }
 
 void buf_test_append(void) {
     char *base = "second string";
-    GBuf *adder = gbuf_new(base);
+    DSBuffer *adder = dsbuf_new(base);
     CU_ASSERT_FATAL(adder != NULL);
 
     /* Verify we don't accept invalid inputs */
-    CU_ASSERT(gbuf_append(NULL, adder) == false);
-    CU_ASSERT(gbuf_append(buf_test, NULL) == false);
+    CU_ASSERT(dsbuf_append(NULL, adder) == false);
+    CU_ASSERT(dsbuf_append(buf_test, NULL) == false);
 
     /* Perform the append operation */
-    CU_ASSERT(gbuf_len(buf_test) == 0);
-    CU_ASSERT(gbuf_append(buf_test, adder) == true);
-    CU_ASSERT(gbuf_len(buf_test) == strlen(base));
+    CU_ASSERT(dsbuf_len(buf_test) == 0);
+    CU_ASSERT(dsbuf_append(buf_test, adder) == true);
+    CU_ASSERT(dsbuf_len(buf_test) == strlen(base));
 
-    gbuf_destroy(adder);
+    dsbuf_destroy(adder);
 }
 
 void buf_test_append_char(void) {
     /* Verify we don't accept invalid inputs */
-    CU_ASSERT(gbuf_append_char(buf_test, -1) == false);
-    CU_ASSERT(gbuf_append_char(NULL, 38) == false);
+    CU_ASSERT(dsbuf_append_char(buf_test, -1) == false);
+    CU_ASSERT(dsbuf_append_char(NULL, 38) == false);
 
     /* Perform the append operation */
-    CU_ASSERT(gbuf_len(buf_test) == 0);
-    CU_ASSERT(gbuf_append_char(buf_test, '6') == true);
-    CU_ASSERT(gbuf_len(buf_test) == 1);
-    CU_ASSERT(gbuf_char_at(buf_test, 0) == '6');
+    CU_ASSERT(dsbuf_len(buf_test) == 0);
+    CU_ASSERT(dsbuf_append_char(buf_test, '6') == true);
+    CU_ASSERT(dsbuf_len(buf_test) == 1);
+    CU_ASSERT(dsbuf_char_at(buf_test, 0) == '6');
 }
 
 void buf_test_append_str(void) {
     /* Verify we don't accept invalid inputs */
-    CU_ASSERT(gbuf_append_str(buf_test, NULL) == false);
-    CU_ASSERT(gbuf_append_str(NULL, "Test String") == false);
+    CU_ASSERT(dsbuf_append_str(buf_test, NULL) == false);
+    CU_ASSERT(dsbuf_append_str(NULL, "Test String") == false);
 
     /* Perform the append operation */
     char *test = "Test String";
-    CU_ASSERT(gbuf_len(buf_test) == 0);
-    CU_ASSERT(gbuf_append_str(buf_test, test) == true);
-    CU_ASSERT(gbuf_len(buf_test) == 11);
+    CU_ASSERT(dsbuf_len(buf_test) == 0);
+    CU_ASSERT(dsbuf_append_str(buf_test, test) == true);
+    CU_ASSERT(dsbuf_len(buf_test) == 11);
 
     size_t len = strlen(test);
     for (int i = 0; i < len; i++) {
-        CU_ASSERT(gbuf_char_at(buf_test, i) == test[i]);
+        CU_ASSERT(dsbuf_char_at(buf_test, i) == test[i]);
     }
 }
 
 void buf_test_char_at(void) {
     /* Verify we don't accept invalid inputs */
-    CU_ASSERT(gbuf_char_at(buf_test, -1) == GBUF_CHAR_NOT_FOUND);
-    CU_ASSERT(gbuf_char_at(buf_test, 10) == GBUF_CHAR_NOT_FOUND);
-    CU_ASSERT(gbuf_char_at(NULL, 3) == GBUF_CHAR_NOT_FOUND);
+    CU_ASSERT(dsbuf_char_at(buf_test, -1) == DSBUFFER_CHAR_NOT_FOUND);
+    CU_ASSERT(dsbuf_char_at(buf_test, 10) == DSBUFFER_CHAR_NOT_FOUND);
+    CU_ASSERT(dsbuf_char_at(NULL, 3) == DSBUFFER_CHAR_NOT_FOUND);
 
     /* Perform the append operation and verify we can access characters */
-    CU_ASSERT(gbuf_len(buf_test) == 0);
-    CU_ASSERT(gbuf_append_char(buf_test, '6') == true);
-    CU_ASSERT(gbuf_append_char(buf_test, '7') == true);
-    CU_ASSERT(gbuf_append_char(buf_test, '8') == true);
-    CU_ASSERT(gbuf_len(buf_test) == 3);
-    CU_ASSERT(gbuf_char_at(buf_test, 0) == '6');
-    CU_ASSERT(gbuf_char_at(buf_test, 1) == '7');
-    CU_ASSERT(gbuf_char_at(buf_test, 2) == '8');
-    CU_ASSERT(gbuf_char_at(buf_test, 6) == GBUF_CHAR_NOT_FOUND);
+    CU_ASSERT(dsbuf_len(buf_test) == 0);
+    CU_ASSERT(dsbuf_append_char(buf_test, '6') == true);
+    CU_ASSERT(dsbuf_append_char(buf_test, '7') == true);
+    CU_ASSERT(dsbuf_append_char(buf_test, '8') == true);
+    CU_ASSERT(dsbuf_len(buf_test) == 3);
+    CU_ASSERT(dsbuf_char_at(buf_test, 0) == '6');
+    CU_ASSERT(dsbuf_char_at(buf_test, 1) == '7');
+    CU_ASSERT(dsbuf_char_at(buf_test, 2) == '8');
+    CU_ASSERT(dsbuf_char_at(buf_test, 6) == DSBUFFER_CHAR_NOT_FOUND);
 }
 
 void buf_test_substr(void) {
-    GBuf *full = gbuf_new("Full String with Substring");
+    DSBuffer *full = dsbuf_new("Full String with Substring");
     CU_ASSERT_FATAL(full != NULL);
 
     /* Verify we don't accept invalid inputs */
-    CU_ASSERT(gbuf_substr(NULL, 5, 2) == NULL);
-    CU_ASSERT(gbuf_substr(full, -1, 2) == NULL);
-    CU_ASSERT(gbuf_substr(full, (int)gbuf_len(full) + 2, 2) == NULL);
-    CU_ASSERT(gbuf_substr(full, 5, gbuf_len(full)) == NULL);
+    CU_ASSERT(dsbuf_substr(NULL, 5, 2) == NULL);
+    CU_ASSERT(dsbuf_substr(full, -1, 2) == NULL);
+    CU_ASSERT(dsbuf_substr(full, (int)dsbuf_len(full) + 2, 2) == NULL);
+    CU_ASSERT(dsbuf_substr(full, 5, dsbuf_len(full)) == NULL);
 
     /* Perform the substring op */
-    GBuf *sub = gbuf_substr(full, 5, 6);
+    DSBuffer *sub = dsbuf_substr(full, 5, 6);
     CU_ASSERT_FATAL(sub != NULL);
-    CU_ASSERT(gbuf_equals_char(sub, "String") == true);
-    CU_ASSERT(gbuf_len(sub) == 6);
+    CU_ASSERT(dsbuf_equals_char(sub, "String") == true);
+    CU_ASSERT(dsbuf_len(sub) == 6);
 
-    gbuf_destroy(full);
-    gbuf_destroy(sub);
+    dsbuf_destroy(full);
+    dsbuf_destroy(sub);
 }
 
 void buf_test_equals(void) {
     char *ts1 = "Test String 1";
     char *ts2 = "Test String 2";
-    GBuf *buf1 = gbuf_new(ts1);
+    DSBuffer *buf1 = dsbuf_new(ts1);
     CU_ASSERT_FATAL(buf1 != NULL);
-    GBuf *buf2 = gbuf_new(ts1);
+    DSBuffer *buf2 = dsbuf_new(ts1);
     CU_ASSERT_FATAL(buf2 != NULL);
 
-    CU_ASSERT(gbuf_append_str(buf_test, ts2) == true);
-    CU_ASSERT(gbuf_equals_char(buf_test, ts2) == true);
-    CU_ASSERT(gbuf_equals(buf1, buf1) == true);
-    CU_ASSERT(gbuf_equals(buf1, buf2) == true);
-    CU_ASSERT(gbuf_equals(buf2, buf2) == true);
-    CU_ASSERT(gbuf_equals(buf_test, buf1) == false);
-    CU_ASSERT(gbuf_equals(buf_test, buf2) == false);
+    CU_ASSERT(dsbuf_append_str(buf_test, ts2) == true);
+    CU_ASSERT(dsbuf_equals_char(buf_test, ts2) == true);
+    CU_ASSERT(dsbuf_equals(buf1, buf1) == true);
+    CU_ASSERT(dsbuf_equals(buf1, buf2) == true);
+    CU_ASSERT(dsbuf_equals(buf2, buf2) == true);
+    CU_ASSERT(dsbuf_equals(buf_test, buf1) == false);
+    CU_ASSERT(dsbuf_equals(buf_test, buf2) == false);
 
-    gbuf_destroy(buf1);
-    gbuf_destroy(buf2);
+    dsbuf_destroy(buf1);
+    dsbuf_destroy(buf2);
 }
 
 void buf_test_equals_char(void) {
     char *ts1 = "Test String 1";
     char *ts2 = "Test String 2";
-    GBuf *buf1 = gbuf_new(ts1);
+    DSBuffer *buf1 = dsbuf_new(ts1);
     CU_ASSERT_FATAL(buf1 != NULL);
-    GBuf *buf2 = gbuf_new(ts1);
+    DSBuffer *buf2 = dsbuf_new(ts1);
     CU_ASSERT_FATAL(buf2 != NULL);
 
-    CU_ASSERT(gbuf_append_str(buf_test, ts2) == true);
-    CU_ASSERT(gbuf_equals_char(buf1, ts1) == true);
-    CU_ASSERT(gbuf_equals_char(buf1, ts2) == false);
-    CU_ASSERT(gbuf_equals_char(buf2, ts1) == true);
-    CU_ASSERT(gbuf_equals_char(buf2, ts2) == false);
-    CU_ASSERT(gbuf_equals_char(buf_test, ts2) == true);
-    CU_ASSERT(gbuf_equals_char(buf_test, ts1) == false);
+    CU_ASSERT(dsbuf_append_str(buf_test, ts2) == true);
+    CU_ASSERT(dsbuf_equals_char(buf1, ts1) == true);
+    CU_ASSERT(dsbuf_equals_char(buf1, ts2) == false);
+    CU_ASSERT(dsbuf_equals_char(buf2, ts1) == true);
+    CU_ASSERT(dsbuf_equals_char(buf2, ts2) == false);
+    CU_ASSERT(dsbuf_equals_char(buf_test, ts2) == true);
+    CU_ASSERT(dsbuf_equals_char(buf_test, ts1) == false);
 
-    gbuf_destroy(buf1);
-    gbuf_destroy(buf2);
+    dsbuf_destroy(buf1);
+    dsbuf_destroy(buf2);
 }
 
 void buf_test_to_char_array(void) {
     char *ts1 = "Test String 1";
 
-    CU_ASSERT(gbuf_to_char_array(NULL) == NULL);
-    CU_ASSERT(gbuf_append_str(buf_test, ts1) == true);
-    char *ts2 = gbuf_to_char_array(buf_test);
+    CU_ASSERT(dsbuf_to_char_array(NULL) == NULL);
+    CU_ASSERT(dsbuf_append_str(buf_test, ts1) == true);
+    char *ts2 = dsbuf_to_char_array(buf_test);
     CU_ASSERT(strcmp(ts1, ts2) == 0);
     free(ts2);
 }
@@ -178,24 +178,24 @@ void buf_test_to_char_array(void) {
 void buf_test_compare(void) {
     char *ts1 = "Test String 1";
     char *ts2 = "Test String 2";
-    GBuf *buf1 = gbuf_new(ts1);
+    DSBuffer *buf1 = dsbuf_new(ts1);
     CU_ASSERT_FATAL(buf1 != NULL);
-    GBuf *buf2 = gbuf_new(ts1);
+    DSBuffer *buf2 = dsbuf_new(ts1);
     CU_ASSERT_FATAL(buf2 != NULL);
 
-    CU_ASSERT(gbuf_compare(buf1, NULL) == INT32_MAX);
-    CU_ASSERT(gbuf_compare(NULL, buf1) == INT32_MIN);
+    CU_ASSERT(dsbuf_compare(buf1, NULL) == INT32_MAX);
+    CU_ASSERT(dsbuf_compare(NULL, buf1) == INT32_MIN);
 
-    CU_ASSERT(gbuf_append_str(buf_test, ts2) == true);
-    CU_ASSERT(gbuf_equals_char(buf_test, ts2) == true);
-    CU_ASSERT(gbuf_compare(buf1, buf1) == 0);
-    CU_ASSERT(gbuf_compare(buf1, buf2) == 0);
-    CU_ASSERT(gbuf_compare(buf2, buf2) == 0);
-    CU_ASSERT(gbuf_compare(buf_test, buf1) != 0);
-    CU_ASSERT(gbuf_compare(buf_test, buf2) != 0);
+    CU_ASSERT(dsbuf_append_str(buf_test, ts2) == true);
+    CU_ASSERT(dsbuf_equals_char(buf_test, ts2) == true);
+    CU_ASSERT(dsbuf_compare(buf1, buf1) == 0);
+    CU_ASSERT(dsbuf_compare(buf1, buf2) == 0);
+    CU_ASSERT(dsbuf_compare(buf2, buf2) == 0);
+    CU_ASSERT(dsbuf_compare(buf_test, buf1) != 0);
+    CU_ASSERT(dsbuf_compare(buf_test, buf2) != 0);
 
-    gbuf_destroy(buf1);
-    gbuf_destroy(buf2);
+    dsbuf_destroy(buf1);
+    dsbuf_destroy(buf2);
 }
 
 void buf_test_compare_utf8(void) {
@@ -535,7 +535,7 @@ void list_test_iter(void) {
 }
 
 void dict_test_setup(void) {
-    dict_test = gdict_new(gbuf_hash, (glist_free_fn) gbuf_destroy);
+    dict_test = gdict_new(dsbuf_hash, (glist_free_fn) dsbuf_destroy);
     CU_ASSERT_FATAL(dict_test != NULL);
 }
 
@@ -546,14 +546,14 @@ void dict_test_teardown(void) {
 
 void dict_test_put(void) {
     /* Produce some mock keys and values */
-    GBuf *key1 = gbuf_new("Key1");
+    DSBuffer *key1 = dsbuf_new("Key1");
     CU_ASSERT_FATAL(key1 != NULL);
-    GBuf *val1 = gbuf_new("Val1");
+    DSBuffer *val1 = dsbuf_new("Val1");
     CU_ASSERT_FATAL(val1 != NULL);
-    GBuf *val2 = gbuf_new("Val2");
+    DSBuffer *val2 = dsbuf_new("Val2");
     CU_ASSERT_FATAL(val2 != NULL);
-    GBuf *test1 = NULL;
-    GBuf *test2 = NULL;
+    DSBuffer *test1 = NULL;
+    DSBuffer *test2 = NULL;
 
     /* Test for invalid inputs */
     gdict_put(NULL, key1, "String");
@@ -567,7 +567,7 @@ void dict_test_put(void) {
     test1 = gdict_get(dict_test, key1);
     CU_ASSERT(test1 != NULL);
     CU_ASSERT(test1 == val1);
-    CU_ASSERT(gbuf_equals(test1, val1) == true);
+    CU_ASSERT(dsbuf_equals(test1, val1) == true);
 
     /* Verify that a put with the same key overwrites properly */
     gdict_put(dict_test, key1, val2);
@@ -575,29 +575,29 @@ void dict_test_put(void) {
     test2 = gdict_get(dict_test, key1);
     CU_ASSERT(test2 != NULL);
     CU_ASSERT(test2 == val2);
-    CU_ASSERT(gbuf_equals(test2, val2) == true);
+    CU_ASSERT(dsbuf_equals(test2, val2) == true);
 
     /* Clean up objects no longer in the dict */
-    gbuf_destroy(key1);
-    gbuf_destroy(val1);
+    dsbuf_destroy(key1);
+    dsbuf_destroy(val1);
 }
 
 void dict_test_collision(void) {
-    GDict *dict = gdict_new(dict_test_hash, (gdict_free_fn)gbuf_destroy);
+    GDict *dict = gdict_new(dict_test_hash, (gdict_free_fn)dsbuf_destroy);
 
-    GBuf *key1 = gbuf_new("Key1");
+    DSBuffer *key1 = dsbuf_new("Key1");
     CU_ASSERT_FATAL(key1 != NULL);
-    GBuf *key2 = gbuf_new("Key2--");
+    DSBuffer *key2 = dsbuf_new("Key2--");
     CU_ASSERT_FATAL(key2 != NULL);
-    GBuf *key3 = gbuf_new("Key3----");
+    DSBuffer *key3 = dsbuf_new("Key3----");
     CU_ASSERT_FATAL(key3 != NULL);
-    GBuf *val1 = gbuf_new("Val1");
+    DSBuffer *val1 = dsbuf_new("Val1");
     CU_ASSERT_FATAL(val1 != NULL);
-    GBuf *val2 = gbuf_new("Val2");
+    DSBuffer *val2 = dsbuf_new("Val2");
     CU_ASSERT_FATAL(val2 != NULL);
-    GBuf *test1 = NULL;
-    GBuf *test2 = NULL;
-    GBuf *test3 = NULL;
+    DSBuffer *test1 = NULL;
+    DSBuffer *test2 = NULL;
+    DSBuffer *test3 = NULL;
 
     /* Mock our hash, so we can simulate key collision
      * We are forcing this both puts into the bucket 10 */
@@ -609,7 +609,7 @@ void dict_test_collision(void) {
     CU_ASSERT(gdict_count(dict) == 1);
     test1 = gdict_get(dict, key1);
     CU_ASSERT(test1 == val1);
-    CU_ASSERT(gbuf_equals(test1, val1) == true);
+    CU_ASSERT(dsbuf_equals(test1, val1) == true);
 
     /* Perform the second put, which needs to go into the same bucket */
     gdict_put(dict, key2, val2);
@@ -617,7 +617,7 @@ void dict_test_collision(void) {
     test2 = gdict_get(dict, key2);
     CU_ASSERT(test2 != NULL);
     CU_ASSERT(test2 == val2);
-    CU_ASSERT(gbuf_equals(test2, val2) == true);
+    CU_ASSERT(dsbuf_equals(test2, val2) == true);
     CU_ASSERT(test1 != test2);
 
     /* Make sure even in the case of collision that we do not get an
@@ -626,19 +626,19 @@ void dict_test_collision(void) {
     test3 = gdict_get(dict, key3);
     CU_ASSERT(test3 == NULL);
 
-    gbuf_destroy(key1);
-    gbuf_destroy(key2);
-    gbuf_destroy(key3);
+    dsbuf_destroy(key1);
+    dsbuf_destroy(key2);
+    dsbuf_destroy(key3);
     gdict_destroy(dict);
 }
 
 void dict_test_get(void) {
     /* Produce some mock keys and values */
-    GBuf *key1 = gbuf_new("Key1");
+    DSBuffer *key1 = dsbuf_new("Key1");
     CU_ASSERT_FATAL(key1 != NULL);
-    GBuf *val1 = gbuf_new("Val1");
+    DSBuffer *val1 = dsbuf_new("Val1");
     CU_ASSERT_FATAL(val1 != NULL);
-    GBuf *test1 = NULL;
+    DSBuffer *test1 = NULL;
 
     /* Test for invalid inputs */
     CU_ASSERT(gdict_get(NULL, key1) == NULL);
@@ -650,20 +650,20 @@ void dict_test_get(void) {
     CU_ASSERT(gdict_count(dict_test) == 1);
     test1 = gdict_get(dict_test, key1);
     CU_ASSERT(test1 == val1);
-    CU_ASSERT(gbuf_equals(test1, val1) == true);
+    CU_ASSERT(dsbuf_equals(test1, val1) == true);
     CU_ASSERT(gdict_count(dict_test) == 1);
 
-    gbuf_destroy(key1);
+    dsbuf_destroy(key1);
 }
 
 void dict_test_del(void) {
     /* Produce some mock keys and values */
-    GBuf *key1 = gbuf_new("Key1");
+    DSBuffer *key1 = dsbuf_new("Key1");
     CU_ASSERT_FATAL(key1 != NULL);
-    GBuf *val1 = gbuf_new("Val1");
+    DSBuffer *val1 = dsbuf_new("Val1");
     CU_ASSERT_FATAL(val1 != NULL);
-    GBuf *test1 = NULL;
-    GBuf *test2 = NULL;
+    DSBuffer *test1 = NULL;
+    DSBuffer *test2 = NULL;
 
     /* Test for invalid inputs */
     CU_ASSERT(gdict_del(NULL, key1) == NULL);
@@ -675,17 +675,17 @@ void dict_test_del(void) {
     CU_ASSERT(gdict_count(dict_test) == 1);
     test1 = gdict_get(dict_test, key1);
     CU_ASSERT(test1 == val1);
-    CU_ASSERT(gbuf_equals(test1, val1) == true);
+    CU_ASSERT(dsbuf_equals(test1, val1) == true);
     CU_ASSERT(gdict_count(dict_test) == 1);
 
     /* Attempt to delete the value */
     test2 = gdict_del(dict_test, key1);
     CU_ASSERT(test2 == val1);
-    CU_ASSERT(gbuf_equals(test2, val1) == true);
+    CU_ASSERT(dsbuf_equals(test2, val1) == true);
     CU_ASSERT(gdict_count(dict_test) == 0);
 
-    gbuf_destroy(key1);
-    gbuf_destroy(val1);
+    dsbuf_destroy(key1);
+    dsbuf_destroy(val1);
 }
 
 void dict_test_resize(void) {

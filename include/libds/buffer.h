@@ -1,101 +1,163 @@
-/*****************************************************************************
- * libds :: buffer.h
+/**
+ * @file buffer.h
  *
- * String buffer data type.
+ * @brief Automatically resizing string/binary buffer.
  *
- * Author:  Chris Rink <chrisrink10@gmail.com>
+ * @author Chris Rink <chrisrink10@gmail.com>
  *
- * License: MIT (see LICENSE document at source tree root)
- *****************************************************************************/
+ * @copyright 2015 Chris Rink. MIT Licensed.
+ */
 
 #ifndef LIBDS_BUFFER_H
 #define LIBDS_BUFFER_H
 
 /**
 * @brief Auto-resizing character buffer object.
-*/
-typedef struct GBuf GBuf;
-
-/**
-* @brief Error codes for @c GBuf functions.
-*/
-static const int GBUF_CHAR_NOT_FOUND = -1;
-
-/**
-* @brief Create a new @c GBuf from the given character array.
 *
-* It is safe to use @c GBuf objects with string literals, since
-* the contents are copied into the buffer's internal memory and
-* thus a call to @c GBuf will not attempt to free static
-* or stack memory.
+* DSBuffer objects are typically resized by @c DSBUFFER_CAPACITY_FACTOR
+* whenever a resize is necessary using the API.
 */
-GBuf *gbuf_new(const char *value);
+typedef struct DSBuffer DSBuffer;
 
 /**
-* @brief Create a new @c GBuf from the given character array with the
+* @brief The factor by which a @c DSBuffer is resized when needed
+*/
+static const int DSBUFFER_CAPACITY_FACTOR = 2;
+
+/**
+* @brief The minimum size of a @c DSBuffer.
+*/
+static const int DSBUFFER_MINIMUM_CAPACITY = 20;
+
+/**
+* @brief Error codes for @c DSBuffer functions.
+*/
+static const int DSBUFFER_CHAR_NOT_FOUND = -1;
+
+/**
+* @brief Create a new @c DSBuffer from the given character array.
+*
+* It is safe to use @c DSBuffer objects with string literals, since
+* the contents are copied into the buffer's internal memory and
+* thus a call to @c DSBuffer will not attempt to free static
+* or stack memory.
+*
+* @param value a standard C @c NUL terminated string; may be a static
+*              or stack-allocated string
+* @returns a new @c DSBuffer object or @c NULL if memory could not
+*          be allocated or if the length of @c value is less than 1
+*/
+DSBuffer *dsbuf_new(const char *value);
+
+/**
+* @brief Create a new @c DSBuffer from the given character array with the
 * given length. This will permit non-null terminated strings.
 *
-* It is safe to use @c GBuf objects with string literals, since
+* It is safe to use @c DSBuffer objects with string literals, since
 * the contents are copied into the buffer's internal memory and
-* thus a call to @c gbuf_destroy will not attempt to free static
+* thus a call to @c dsbuf_destroy will not attempt to free static
 * or stack memory.
+*
+* @param value a standard C @c NUL terminated string; may be a static
+*              or stack-allocated string
+* @param len the length of the input string
+* @returns a new @c DSBuffer object or @c NULL if memory could not
+*          be allocated or if the length of @c value is less than 1
 */
-GBuf *gbuf_new_l(const char *value, size_t len);
+DSBuffer *dsbuf_new_l(const char *value, size_t len);
 
 /**
-* @brief Create a new @c GBuf with the given capacity which can be used
+* @brief Create a new @c DSBuffer with the given capacity which can be used
 * as a character buffer.
+*
+* The bytes of the buffer will be set to 0. The minimum capacity permitted
+* is 20.
+*
+* @param cap the requested capacity for the @c DSBuffer
+* @returns a new @c DSBuffer object with the requested capacity or @c NULL
+*          if memory could not be allocated or if the length of @c value is less than 1
 */
-GBuf *gbuf_new_buffer(size_t cap);
+DSBuffer *dsbuf_new_buffer(size_t cap);
 
 /**
-* @brief Dispose of the @c GBuf object.
+* @brief Dispose of the @c DSBuffer object.
+*
+* Calling this function multiple times on the same pointer may have
+* undefined behavior (much like @c free ).
+*
+* @param str a @c DSBuffer object to free
 */
-void gbuf_destroy(GBuf *str);
+void dsbuf_destroy(DSBuffer *str);
 
 /**
-* @brief Return the length in number of bytes in the @c GBuf or 0 if
-* @c str is null.
+* @brief Return the length in number of bytes in the @c DSBuffer.
 *
 * Note that this is not the UTF-8 length.
+*
+* @param str a @c DSBuffer object
+* @returns the number of used bytes in @c str
 */
-size_t gbuf_len(GBuf *str);
+size_t dsbuf_len(DSBuffer *str);
 
 /**
-* @brief Return the capacity in number of bytes in the @c GBuf or 0 if
-* @c str is null.
+* @brief Return the capacity in number of bytes in the @c DSBuffer.
+*
+* @param str a @c DSBuffer object
+* @returns the number of available bytes in @c str
 */
-size_t gbuf_cap(GBuf *str);
+size_t dsbuf_cap(DSBuffer *str);
 
 /**
 * @brief Append @c newc to @c str, resizing @c str if necessary.
 *
-* Note that you still have to destroy both @c str and @c newc .
+* Callers will still be responsible for destroying both of @str and
+* @c newc. The append operation may fail if the buffer in @c str cannot
+* be resized. This operation does not guarantee to @c NUL terminate the
+* resultant filled buffer portion. However, the length of @c str will
+* correctly reflect the new combined length.
+*
+* @param str a @c DSBuffer object
+* @param newc a @c DSBuffer object append to @c str
+* @returns @c true if the append succeeds; @c false otherwise
 */
-bool gbuf_append(GBuf *str, GBuf *newc);
+bool dsbuf_append(DSBuffer *str, DSBuffer *newc);
 
 /**
 * @brief Append the new @c char to @c str, resizing if necessary.
+*
+* The append operation may fail if the buffer in @c str cannot be
+* resized.
+*
+* @param str @c DSBuffer object
+* @param newc a @c char to append to @c str
+* @returns @c true if the append succeeds; @c false otherwise
 */
-bool gbuf_append_char(GBuf *str, int newc);
+bool dsbuf_append_char(DSBuffer *str, int newc);
 
 /**
-* @brief Append an existing C-string to a @c GBuf object.
+* @brief Append an existing C-string to a @c DSBuffer object.
 *
-* It is safe to use @c GBuf objects with string literals, since
-* the contents are copied into the buffer's internal memory and
-* thus a call to @c gbuf_destroy will not attempt to free static
+* The append operation may fail if the buffer in @c str cannot be
+* resized. It is safe to use @c DSBuffer objects with string literals,
+* since the contents are copied into the buffer's internal memory and
+* thus a call to @c dsbuf_destroy will not attempt to free static
 * or stack memory.
+*
+* @param str a @c DSBuffer object
+* @param newstr a @c NUL terminated C string
+* @param @c true if the append succeeds; @c false otherwise
 */
-bool gbuf_append_str(GBuf *str, char *newstr);
+bool dsbuf_append_str(DSBuffer *str, const char *newstr);
 
 /**
-* @brief Return the character at the given position.
+* @brief Return the @c char at the given position.
 *
-* Returns  -1 if the position is greater than or equal to the
-* length of the string or is 0.
+* @param str a @c DSBuffer object
+* @param pos a valid index in [0, len)
+* @returns @c DSBUFFER_CHAR_NOT_FOUND if the position is greater than or
+*          equal to the length of the string or is 0; the character otherwise
 */
-int gbuf_char_at(GBuf *str, int pos);
+int dsbuf_char_at(DSBuffer *str, int pos);
 
 /**
 * @brief Return a substring of the given buffer.
@@ -103,62 +165,87 @@ int gbuf_char_at(GBuf *str, int pos);
 * Buffer starts at the given position and returning up to @c len
 * characters.
 *
-* Returns a null string if:
-* - start is less than 0
-* - start is greater than the length of the string
-* - len would exceed the length of the string
-* - memory cannot be allocated for the new substring
+* @param str a @c DSBuffer object
+* @param start the starting index of the substring
+* @param len the length of the substring in bytes
+* @returns @c NULL if (@c start < 0) or (@c start > length of string) or
+*          the length would exceed the length of the string or memory could
+*          not be allocated; the substring as a @c DSBuffer otherwise
 */
-GBuf* gbuf_substr(GBuf *str, int start, size_t len);
+DSBuffer* dsbuf_substr(DSBuffer *str, int start, size_t len);
 
 /**
-* @brief Return true if two @c gbuf objects are equal (length, capacity,
-* and string value).
+* @brief Check if two @c DSBuffer objects are equal (but not the same).
+*
+* This function first checks basic things such as the internal length
+* and capacity properties first before performing a @c strcmp.
+*
+* @param str a @c DSBuffer object
+* @param other another @c DSBuffer object
+* @returns @c true if @c str is equal to @c other
 */
-bool gbuf_equals(GBuf *str, GBuf *other);
+bool dsbuf_equals(DSBuffer *str, DSBuffer *other);
 
 /**
-* @brief Return true if the underlying buffer is value equal to the
-* input character array.
+* @brief Check if the internal buffer of a @c DSBuffer is equal to a standard
+* C string.
+*
+* @param str a @c DSBuffer object
+* @param other a standard C string
+* @returns @c true if the internal buffer of @c str is binary equal to @c other
 */
-bool gbuf_equals_char(GBuf *str, const char *other);
+bool dsbuf_equals_char(DSBuffer *str, const char *other);
 
 /**
 * @brief Return the pointer to the internal character array.
 *
-* Callers should not try to free this value, since it is the same
-* value being used by the @c GBuf .
+* @c DSBuffer objects are not bound to be terminated with @c NUL bytes
+* like a C string. Other string functions will not be able to read
+* beyond any interspersed @c NUL bytes.
+*
+* @param str a @c DSBuffer object
+* @returns a pointer to the internal character buffer
 */
-char* gbuf_char_ptr(GBuf *str);
+const char* dsbuf_char_ptr(DSBuffer *str);
 
 /**
 * @brief Return a @c char array corresponding to the underlying string.
 *
-* Note that since C strings are terminated with the NUL byte, @c \0 ,
-* and a gbuf is not bound by the same restrictions, that you may not be
-* able to access the entire string.
+* @c DSBuffer objects are not bound to be terminated with @c NUL bytes
+* like a C string. This function returns the body of the string up until
+* the first @c NUL byte. Callers are required to call @c free on the
+* return value from this function.
 *
-* Callers are required to call @c free on the return value from this
-* function.
+* @param str a @c DSBuffer object
+* @returns a copy of the internal buffer as a C string up to the first
+*          @c NUL byte
 */
-char* gbuf_to_char_array(GBuf *str);
+char* dsbuf_to_char_array(DSBuffer *str);
 
 /**
-* @brief Return a Larson hash of the underlying string.
+* @brief Return a hash of the underlying string.
+*
+* This function is intended to be used for hashing @c DSBuffer objects
+* for a @c DSDict key, so it uses a generic void pointer parameter.
+*
+* @param str a @c DSBuffer object
+* @returns a hash of the internal buffer
 */
-unsigned int gbuf_hash(void *str);
+unsigned int dsbuf_hash(void *str);
 
 /**
-* @brief Return the difference between left and right.
+* @brief Compare two strings byte-wise.
 *
-* Returns INT32_MIN if left is NULL;
-* Returns INT32_MAX if right is NULL.
+* This function is merely a light wrapper around @c strcmp to be used for
+* comparing two @c DSBuffer objects in a @c DSList.
+*
+* @returns @c INT32_MIN if left is @c NULL or @c INT32_MAX if right is @c NULL
 */
-int gbuf_compare(void const* left, void const* right);
+int dsbuf_compare(void const* left, void const* right);
 
 /**
 * @brief Return the Lexicographical difference between left and right.
 */
-int gbuf_compare_utf8(void const* left, void const* right);
+int dsbuf_compare_utf8(void const* left, void const* right);
 
 #endif //LIBDS_BUFFER_H
