@@ -535,7 +535,7 @@ void list_test_iter(void) {
 }
 
 void dict_test_setup(void) {
-    dict_test = dsdict_new(dsbuf_hash, (dslist_free_fn) dsbuf_destroy);
+    dict_test = dsdict_new(dsbuf_hash, dsbuf_compare, (dslist_free_fn) dsbuf_destroy);
     CU_ASSERT_FATAL(dict_test != NULL);
 }
 
@@ -570,7 +570,7 @@ void dict_test_put(void) {
     CU_ASSERT(dsbuf_equals(test1, val1) == true);
 
     /* Verify that a put with the same key overwrites properly */
-    dsdict_put(dict_test, key1, val2);
+    dsdict_put(dict_test, key1, val2);          /* this also frees val1 */
     CU_ASSERT(dsdict_count(dict_test) == 1);
     test2 = dsdict_get(dict_test, key1);
     CU_ASSERT(test2 != NULL);
@@ -579,11 +579,10 @@ void dict_test_put(void) {
 
     /* Clean up objects no longer in the dict */
     dsbuf_destroy(key1);
-    dsbuf_destroy(val1);
 }
 
 void dict_test_collision(void) {
-    DSDict *dict = dsdict_new(dict_test_hash, (dsdict_free_fn)dsbuf_destroy);
+    DSDict *dict = dsdict_new(dict_test_hash, dsbuf_compare, (dsdict_free_fn)dsbuf_destroy);
 
     DSBuffer *key1 = dsbuf_new("Key1");
     CU_ASSERT_FATAL(key1 != NULL);

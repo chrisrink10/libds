@@ -42,6 +42,7 @@ struct DSDict {
     size_t cap;
     dsdict_hash_fn hash;
     dsdict_free_fn free;
+    dsdict_compare_fn cmp;
 };
 
 static bool dsdict_resize(DSDict *dict, size_t cap);
@@ -52,8 +53,8 @@ static inline int dsdict_place(unsigned int hash, size_t cap);
  * DICTIONARY PUBLIC FUNCTIONS
  */
 
-DSDict * dsdict_new(dsdict_hash_fn hash, dsdict_free_fn freefn) {
-    if (!hash) { return NULL; }
+DSDict * dsdict_new(dsdict_hash_fn hash, dsdict_compare_fn cmpfn, dsdict_free_fn freefn) {
+    if ((!hash) || (!cmpfn)) { return NULL; }
 
     DSDict *dict = malloc(sizeof(DSDict));
     if (!dict) {
@@ -71,6 +72,7 @@ DSDict * dsdict_new(dsdict_hash_fn hash, dsdict_free_fn freefn) {
     dict->cap = DSDICT_DEFAULT_CAP;
     dict->hash = hash;
     dict->free = freefn;
+    dict->cmp = cmpfn;
     return dict;
 }
 
@@ -124,7 +126,8 @@ void dsdict_put(DSDict *dict, void *key, void *val) {
 
     // If there was data, check if it's the same value;
     // if so, we can overwrite it and we're done
-    if (cur->hash == hash) {
+    if ((cur->hash == hash) && (dict->cmp(cur->key, key) == 0)) {
+        if (dict->free) { dict->free(cur->data); }
         cur->data = val;
         goto cleanup_dsdict_put;
     }
@@ -135,7 +138,8 @@ void dsdict_put(DSDict *dict, void *key, void *val) {
     cur = cur->next;
     while ((cur)) {
         prev = cur;
-        if (cur->hash == hash) {
+        if ((cur->hash == hash) && (dict->cmp(cur->key, key) == 0)) {
+            if (dict->free) { dict->free(cur->data); }
             cur->data = val;
             goto cleanup_dsdict_put;
         }
