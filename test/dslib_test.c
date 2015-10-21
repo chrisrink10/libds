@@ -17,7 +17,7 @@
 
 // Test objects
 static DSBuffer *buf_test = NULL;
-static GList *list_test = NULL;
+static DSList *list_test = NULL;
 static GDict *dict_test = NULL;
 static int gdict_collision_cap = 0;
 static int gdict_collision_place = 0;
@@ -203,12 +203,12 @@ void buf_test_compare_utf8(void) {
 }
 
 void list_test_setup(void) {
-    list_test = glist_new(list_test_comparator, free);
+    list_test = dslist_new(list_test_comparator, free);
     CU_ASSERT_FATAL(list_test != NULL);
 }
 
 void list_test_teardown(void) {
-    glist_destroy(list_test);
+    dslist_destroy(list_test);
     list_test = NULL;
 }
 
@@ -222,16 +222,16 @@ void list_test_append(void) {
     CU_ASSERT(strcmp(dest, src) == 0);
 
     /* Do we guard against null objects? */
-    CU_ASSERT(glist_append(NULL, dest) == false);
-    CU_ASSERT(glist_append(list_test, NULL) == false);
-    CU_ASSERT(glist_len(list_test) == 0);
+    CU_ASSERT(dslist_append(NULL, dest) == false);
+    CU_ASSERT(dslist_append(list_test, NULL) == false);
+    CU_ASSERT(dslist_len(list_test) == 0);
 
     /* Can we insert this string? */
-    CU_ASSERT(glist_append(list_test, dest) == true);
-    CU_ASSERT(glist_len(list_test) == 1);
+    CU_ASSERT(dslist_append(list_test, dest) == true);
+    CU_ASSERT(dslist_len(list_test) == 1);
 
     /* Do we get the same string back? */
-    test = glist_get(list_test, 0);
+    test = dslist_get(list_test, 0);
     CU_ASSERT(test == dest);
     CU_ASSERT(test != NULL);
     CU_ASSERT(strcmp(test, src) == 0);
@@ -244,12 +244,12 @@ void list_test_append(void) {
         sprintf(next, some, i);
 
         /* Do multiple get inserted correctly? */
-        CU_ASSERT(glist_append(list_test, next) == true);
-        CU_ASSERT(glist_len(list_test) == i+1);
-        CU_ASSERT(glist_get(list_test, i) == next);
+        CU_ASSERT(dslist_append(list_test, next) == true);
+        CU_ASSERT(dslist_len(list_test) == i+1);
+        CU_ASSERT(dslist_get(list_test, i) == next);
 
         /* Do they get *appended* rather than inserted at the beginning? */
-        CU_ASSERT(strcmp(glist_get(list_test, i), next) == 0);
+        CU_ASSERT(strcmp(dslist_get(list_test, i), next) == 0);
     }
 }
 
@@ -263,22 +263,22 @@ void list_test_insert(void) {
     CU_ASSERT(strcmp(dest, src) == 0);
 
     /* Do we guard against null objects? */
-    CU_ASSERT(glist_insert(list_test, NULL, 1) == false);
-    CU_ASSERT(glist_insert(NULL, dest, 1) == false);
-    CU_ASSERT(glist_len(list_test) == 0);
+    CU_ASSERT(dslist_insert(list_test, NULL, 1) == false);
+    CU_ASSERT(dslist_insert(NULL, dest, 1) == false);
+    CU_ASSERT(dslist_len(list_test) == 0);
 
     /* Do we guard against incorrect indices? */
-    CU_ASSERT(glist_insert(list_test, dest, -1) == false);
-    CU_ASSERT(glist_insert(list_test, dest, (int)glist_len(list_test)+1) == false);
-    CU_ASSERT(glist_insert(list_test, dest, 100000) == false);
-    CU_ASSERT(glist_len(list_test) == 0);
+    CU_ASSERT(dslist_insert(list_test, dest, -1) == false);
+    CU_ASSERT(dslist_insert(list_test, dest, (int)dslist_len(list_test)+1) == false);
+    CU_ASSERT(dslist_insert(list_test, dest, 100000) == false);
+    CU_ASSERT(dslist_len(list_test) == 0);
 
     /* Can we insert this string? */
-    CU_ASSERT(glist_insert(list_test, dest, 0) == true);
-    CU_ASSERT(glist_len(list_test) == 1);
+    CU_ASSERT(dslist_insert(list_test, dest, 0) == true);
+    CU_ASSERT(dslist_len(list_test) == 1);
 
     /* Do we get the same string back? */
-    test = glist_get(list_test, 0);
+    test = dslist_get(list_test, 0);
     CU_ASSERT(test == dest);
     CU_ASSERT(test != NULL);
     CU_ASSERT(strcmp(test, src) == 0);
@@ -291,17 +291,17 @@ void list_test_insert(void) {
         sprintf(next, some, i);
 
         /* Do multiple get inserted correctly at the beginning? */
-        CU_ASSERT(glist_insert(list_test, next, 0) == true);
-        CU_ASSERT(glist_len(list_test) == i+1);
-        CU_ASSERT(glist_get(list_test, 0) == next);
+        CU_ASSERT(dslist_insert(list_test, next, 0) == true);
+        CU_ASSERT(dslist_len(list_test) == i+1);
+        CU_ASSERT(dslist_get(list_test, 0) == next);
 
         /* Do they get inserted at the beginning rather than inserted at the beginning? */
-        CU_ASSERT(strcmp(glist_get(list_test, 0), next) == 0);
+        CU_ASSERT(strcmp(dslist_get(list_test, 0), next) == 0);
     }
 }
 
 void list_test_extend(void) {
-    GList *other = glist_new(list_test_comparator, free);
+    DSList *other = dslist_new(list_test_comparator, free);
     CU_ASSERT_FATAL(other != NULL);
 
     /* Create the initial list */
@@ -311,7 +311,7 @@ void list_test_extend(void) {
         CU_ASSERT_FATAL(next != NULL);
 
         sprintf(next, some, i);
-        CU_ASSERT(glist_append(list_test, next) == true);
+        CU_ASSERT(dslist_append(list_test, next) == true);
     }
 
     /* Create the list to use with extend */
@@ -321,22 +321,22 @@ void list_test_extend(void) {
         CU_ASSERT_FATAL(next != NULL);
 
         sprintf(next, some, i+10);
-        CU_ASSERT(glist_append(other, next) == true);
+        CU_ASSERT(dslist_append(other, next) == true);
     }
 
     /* Perform the extend */
-    CU_ASSERT(glist_extend(list_test, other) == true);
+    CU_ASSERT(dslist_extend(list_test, other) == true);
 
     /* Test the extend succeeded */
     int val;
     for (int i = 0; i < 20; i++) {
-        char *test = glist_get(list_test, i);
+        char *test = dslist_get(list_test, i);
         CU_ASSERT_FATAL(test != NULL);
         sscanf(test, "%d", &val);
         CU_ASSERT(val == i);
     }
 
-    glist_destroy(other);
+    dslist_destroy(other);
 }
 
 void list_test_get(void) {
@@ -348,16 +348,16 @@ void list_test_get(void) {
     strcpy(dest, src);
     CU_ASSERT(strcmp(dest, src) == 0);
 
-    CU_ASSERT(glist_insert(list_test, dest, 0) == true);
-    CU_ASSERT(glist_len(list_test) == 1);
+    CU_ASSERT(dslist_insert(list_test, dest, 0) == true);
+    CU_ASSERT(dslist_len(list_test) == 1);
 
     /* Do we guard against invalid inputs? */
-    CU_ASSERT(glist_get(NULL, 0) == NULL);
-    CU_ASSERT(glist_get(list_test, -1) == NULL);
-    CU_ASSERT(glist_get(list_test, ((int)glist_len(list_test))+10) == NULL);
+    CU_ASSERT(dslist_get(NULL, 0) == NULL);
+    CU_ASSERT(dslist_get(list_test, -1) == NULL);
+    CU_ASSERT(dslist_get(list_test, ((int)dslist_len(list_test))+10) == NULL);
 
     /* Can we get a reference to this object? */
-    test = glist_get(list_test, 0);
+    test = dslist_get(list_test, 0);
     CU_ASSERT(test == dest);
     CU_ASSERT(strcmp(test, dest) == 0);
 }
@@ -371,17 +371,17 @@ void list_test_remove(void) {
     CU_ASSERT(strcmp(dest, src) == 0);
 
     /* Do we guard against invalid inputs? */
-    CU_ASSERT(glist_remove(NULL, dest) == NULL);
-    CU_ASSERT(glist_remove(list_test, NULL) == NULL);
+    CU_ASSERT(dslist_remove(NULL, dest) == NULL);
+    CU_ASSERT(dslist_remove(list_test, NULL) == NULL);
 
     /* Do we return something reasonable if the item isn't found? */
-    CU_ASSERT(glist_remove(list_test, dest) == NULL);
+    CU_ASSERT(dslist_remove(list_test, dest) == NULL);
 
     /* Does the remove actually work? */
-    CU_ASSERT(glist_append(list_test, dest) == true);
-    CU_ASSERT(glist_len(list_test) == 1);
-    CU_ASSERT(glist_remove(list_test, dest) != NULL);
-    CU_ASSERT(glist_len(list_test) == 0);
+    CU_ASSERT(dslist_append(list_test, dest) == true);
+    CU_ASSERT(dslist_len(list_test) == 1);
+    CU_ASSERT(dslist_remove(list_test, dest) != NULL);
+    CU_ASSERT(dslist_len(list_test) == 0);
 
     free(dest);
 }
@@ -390,9 +390,9 @@ void list_test_remove_index(void) {
     char *test = NULL;
 
     /* Do we guard against invalid inputs? */
-    CU_ASSERT(glist_remove_index(NULL, 1) == NULL);
-    CU_ASSERT(glist_remove_index(list_test, -1) == NULL);
-    CU_ASSERT(glist_remove_index(list_test, (int)glist_len(list_test)+1) == NULL);
+    CU_ASSERT(dslist_remove_index(NULL, 1) == NULL);
+    CU_ASSERT(dslist_remove_index(list_test, -1) == NULL);
+    CU_ASSERT(dslist_remove_index(list_test, (int)dslist_len(list_test)+1) == NULL);
 
     /* Generate some testing data */
     for (int i = 0; i < 8; i++) {
@@ -401,38 +401,38 @@ void list_test_remove_index(void) {
         CU_ASSERT_FATAL(next != NULL);
 
         sprintf(next, some, i);
-        CU_ASSERT(glist_append(list_test, next) == true);
+        CU_ASSERT(dslist_append(list_test, next) == true);
     }
 
     /* Do we properly remove from the beginning? ("Test 0") */
-    CU_ASSERT(glist_len(list_test) == 8);
-    test = glist_remove_index(list_test, 0);
+    CU_ASSERT(dslist_len(list_test) == 8);
+    test = dslist_remove_index(list_test, 0);
     CU_ASSERT(test != NULL);
-    CU_ASSERT(glist_get(list_test, 0) != test);
-    CU_ASSERT(strcmp(glist_get(list_test, 0), test) != 0);
+    CU_ASSERT(dslist_get(list_test, 0) != test);
+    CU_ASSERT(strcmp(dslist_get(list_test, 0), test) != 0);
     free(test);
 
     /* Do we properly remove from the middle? ("Test 4") */
-    CU_ASSERT(glist_len(list_test) == 7);
-    test = glist_remove_index(list_test, 3);
+    CU_ASSERT(dslist_len(list_test) == 7);
+    test = dslist_remove_index(list_test, 3);
     CU_ASSERT(test != NULL);
-    CU_ASSERT(glist_get(list_test, 3) != test);
-    CU_ASSERT(strcmp(glist_get(list_test, 3), test) != 0);
+    CU_ASSERT(dslist_get(list_test, 3) != test);
+    CU_ASSERT(strcmp(dslist_get(list_test, 3), test) != 0);
     free(test);
 
     /* Do we properly remove from the middle? ("Test 7") */
-    CU_ASSERT(glist_len(list_test) == 6);
-    test = glist_remove_index(list_test, 5);
+    CU_ASSERT(dslist_len(list_test) == 6);
+    test = dslist_remove_index(list_test, 5);
     CU_ASSERT(test != NULL);
-    CU_ASSERT(glist_get(list_test, 5) == NULL);
-    CU_ASSERT(glist_len(list_test) == 5);
+    CU_ASSERT(dslist_get(list_test, 5) == NULL);
+    CU_ASSERT(dslist_len(list_test) == 5);
     free(test);
 }
 
 void list_test_index(void) {
-    CU_ASSERT(glist_index(NULL, list_test) == GLIST_NULL_POINTER);
-    CU_ASSERT(glist_index(list_test, NULL) == GLIST_NULL_POINTER);
-    CU_ASSERT(glist_index(list_test, list_test) == GLIST_NOT_FOUND);
+    CU_ASSERT(dslist_index(NULL, list_test) == GLIST_NULL_POINTER);
+    CU_ASSERT(dslist_index(list_test, NULL) == GLIST_NULL_POINTER);
+    CU_ASSERT(dslist_index(list_test, list_test) == GLIST_NOT_FOUND);
 
     for (int i = 0; i < 8; i++) {
         char *some = "Test %d";
@@ -440,14 +440,14 @@ void list_test_index(void) {
         CU_ASSERT_FATAL(next != NULL);
 
         sprintf(next, some, i);
-        CU_ASSERT(glist_append(list_test, next) == true);
+        CU_ASSERT(dslist_append(list_test, next) == true);
 
-        CU_ASSERT(glist_index(list_test, next) == i);
+        CU_ASSERT(dslist_index(list_test, next) == i);
     }
 }
 
 void list_test_pop(void) {
-    CU_ASSERT(glist_pop(NULL) == NULL);
+    CU_ASSERT(dslist_pop(NULL) == NULL);
 
     for (int i = 0; i < 8; i++) {
         char *some = "Test %d";
@@ -455,31 +455,31 @@ void list_test_pop(void) {
         CU_ASSERT_FATAL(next != NULL);
 
         sprintf(next, some, i);
-        CU_ASSERT(glist_append(list_test, next) == true);
+        CU_ASSERT(dslist_append(list_test, next) == true);
     }
 
     for (int i = 7; i >= 0; i--) {
-        CU_ASSERT(glist_len(list_test) == i+1);
-        char *next = glist_pop(list_test);
+        CU_ASSERT(dslist_len(list_test) == i+1);
+        char *next = dslist_pop(list_test);
         CU_ASSERT(next != NULL);
-        CU_ASSERT(glist_len(list_test) == i);
+        CU_ASSERT(dslist_len(list_test) == i);
         free(next);
     }
 }
 
 void list_test_resize(void) {
-    int cap = ((int)glist_cap(list_test)) * 3;
+    int cap = ((int)dslist_cap(list_test)) * 3;
     for (int i = 0; i < cap; i++) {
         char *some = "Test %d";
         char *next = malloc(strlen(some) + 1);
         CU_ASSERT_FATAL(next != NULL);
 
         sprintf(next, some, i);
-        CU_ASSERT(glist_append(list_test, next) == true);
+        CU_ASSERT(dslist_append(list_test, next) == true);
     }
 
-    CU_ASSERT(glist_len(list_test) == cap);
-    CU_ASSERT(glist_cap(list_test) >= cap);
+    CU_ASSERT(dslist_len(list_test) == cap);
+    CU_ASSERT(dslist_cap(list_test) >= cap);
 }
 
 void list_test_sort(void) {
@@ -493,15 +493,15 @@ void list_test_sort(void) {
         int r = rand();
         int b = (r % 900) + 100;
         sprintf(next, some, b);
-        CU_ASSERT(glist_append(list_test, next) == true);
+        CU_ASSERT(dslist_append(list_test, next) == true);
     }
 
-    glist_sort(list_test);
+    dslist_sort(list_test);
 
     int val;
     int prev = -1; // rand() should always return value between 0 and RAND_MAX
     for (int i = 0; i < 15; i++) {
-        char *test = glist_get(list_test, i);
+        char *test = dslist_get(list_test, i);
         sscanf(test, "%d", &val);
         CU_ASSERT(val >= prev);
         prev = val;
@@ -515,14 +515,14 @@ void list_test_reverse(void) {
         CU_ASSERT_FATAL(next != NULL);
 
         sprintf(next, some, i);
-        CU_ASSERT(glist_append(list_test, next) == true);
+        CU_ASSERT(dslist_append(list_test, next) == true);
     }
 
-    glist_reverse(list_test);
+    dslist_reverse(list_test);
 
     int expected = 10;
     for (int i = 0; i < 11; i++) {
-        char *test = glist_get(list_test, i);
+        char *test = dslist_get(list_test, i);
         int val;
         sscanf(test, "%*s %d", &val);
         CU_ASSERT(val == expected);
@@ -535,7 +535,7 @@ void list_test_iter(void) {
 }
 
 void dict_test_setup(void) {
-    dict_test = gdict_new(dsbuf_hash, (glist_free_fn) dsbuf_destroy);
+    dict_test = gdict_new(dsbuf_hash, (dslist_free_fn) dsbuf_destroy);
     CU_ASSERT_FATAL(dict_test != NULL);
 }
 

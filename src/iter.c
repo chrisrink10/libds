@@ -24,7 +24,7 @@ bool giter_next(GIter *iter) {
         case ITER_DICT:
             return giter_gdict_next(iter, true);
         case ITER_LIST: {
-            return giter_glist_next(iter);
+            return giter_dslist_next(iter);
         }
     }
 
@@ -38,7 +38,7 @@ bool giter_has_next(GIter *iter) {
         case ITER_DICT:
             return giter_gdict_next(iter, false);
         case ITER_LIST:
-            return (glist_get(iter->target.list, iter->cur+1) != NULL);
+            return (dslist_get(iter->target.list, iter->cur+1) != NULL);
     }
 
     return false;
@@ -64,7 +64,7 @@ void* giter_value(GIter *iter) {
         case ITER_DICT:
             return iter->node->data;
         case ITER_LIST:
-            return glist_get(iter->target.list, iter->cur);
+            return dslist_get(iter->target.list, iter->cur);
     }
 
     return NULL;

@@ -14,31 +14,30 @@
 #include "libds/list.h"
 #include "iterpriv.h"
 
-static const int DEFAULT_GLIST_CAP = 10;
-static const int DEFAULT_GLIST_CAPACITY_FACTOR = 2;
 
-struct GList {
+
+struct DSList {
     void **data;
     size_t len;
     size_t cap;
-    glist_compare_fn cmp;
-    glist_free_fn free;
+    dslist_compare_fn cmp;
+    dslist_free_fn free;
 };
 
-static bool glist_resize(GList *list, size_t cap);
-static void glist_free(GList *list);
+static bool dslist_resize(DSList *list, size_t cap);
+static void dslist_free(DSList *list);
 
 /*
  * LIST PUBLIC FUNCTIONS
  */
 
-GList* glist_new(glist_compare_fn cmpfn, glist_free_fn freefn) {
-    GList *list = malloc(sizeof(GList));
+DSList * dslist_new(dslist_compare_fn cmpfn, dslist_free_fn freefn) {
+    DSList *list = malloc(sizeof(DSList));
     if (!list) {
         return NULL;
     }
 
-    size_t cap = sizeof(void*) * DEFAULT_GLIST_CAP;
+    size_t cap = sizeof(void*) * DSLIST_DEFAULT_CAPACITY;
     list->data = calloc(cap, sizeof(void*));
     if (!list->data) {
         free(list);
@@ -46,34 +45,34 @@ GList* glist_new(glist_compare_fn cmpfn, glist_free_fn freefn) {
     }
 
     list->len = 0;
-    list->cap = DEFAULT_GLIST_CAP;
+    list->cap = DSLIST_DEFAULT_CAPACITY;
     list->cmp = cmpfn;
     list->free = freefn;
     return list;
 }
 
-void glist_destroy(GList *list) {
+void dslist_destroy(DSList *list) {
     if (!list) { return; }
-    glist_free(list);
+    dslist_free(list);
     free(list->data);
     free(list);
 }
 
-size_t glist_len(GList *list) {
+size_t dslist_len(DSList *list) {
     return (list) ? (list->len) : 0;
 }
 
-size_t glist_cap(GList *list) {
+size_t dslist_cap(DSList *list) {
     return (list) ? (list->cap) : 0;
 }
 
-void* glist_get(GList *list, int index) {
+void* dslist_get(DSList *list, int index) {
     if (!list) { return NULL; }
     if (index < 0 || index > list->len) { return NULL; }
     return list->data[index];
 }
 
-void glist_foreach(GList *list, void (*func)(void*)) {
+void dslist_foreach(DSList *list, void (*func)(void*)) {
     if ((!list) || (!func)) { return; }
 
     for (int i = 0; i < list->len; i++) {
@@ -81,19 +80,19 @@ void glist_foreach(GList *list, void (*func)(void*)) {
     }
 }
 
-bool glist_append(GList *list, void *elem) {
+bool dslist_append(DSList *list, void *elem) {
     if ((!list) || (!elem)) { return false; }
-    return glist_insert(list, elem, (int)list->len);
+    return dslist_insert(list, elem, (int)list->len);
 }
 
-bool glist_extend(GList *list, GList *other) {
+bool dslist_extend(DSList *list, DSList *other) {
     if ((!list) || (!other)) { return false; }
     if (other->len == 0) { return false; }
 
     int len = (int)other->len;
     int i = 0;
     for (i = 0; i < len; i++) {
-        if (!glist_append(list, glist_get(other, i))) {
+        if (!dslist_append(list, dslist_get(other, i))) {
             other->len = other->len - i;
             return false;
         }
@@ -104,7 +103,7 @@ bool glist_extend(GList *list, GList *other) {
     return true;
 }
 
-bool glist_insert(GList *list, void *elem, int index) {
+bool dslist_insert(DSList *list, void *elem, int index) {
     if ((!list) || (!elem)) { return false; }
 
     if ((index < 0) || (index > (list->len))) {
@@ -112,7 +111,7 @@ bool glist_insert(GList *list, void *elem, int index) {
     }
 
     if ((list->len + 1) > list->cap) {
-        if (!glist_resize(list, list->cap * DEFAULT_GLIST_CAPACITY_FACTOR)) {
+        if (!dslist_resize(list, list->cap * DSLIST_CAPACITY_FACTOR)) {
             return false;
         }
     }
@@ -126,14 +125,14 @@ bool glist_insert(GList *list, void *elem, int index) {
     return true;
 }
 
-void* glist_remove(GList *list, void *elem) {
+void* dslist_remove(DSList *list, void *elem) {
     if ((!list) || (!elem)) { return NULL; }
 
-    int i = glist_index(list, elem);
-    return glist_remove_index(list, i);
+    int i = dslist_index(list, elem);
+    return dslist_remove_index(list, i);
 }
 
-void* glist_remove_index(GList *list, int index) {
+void* dslist_remove_index(DSList *list, int index) {
     if (!list) { return NULL; }
 
     if ((index < 0) || (index >= list->len)) {
@@ -151,18 +150,18 @@ void* glist_remove_index(GList *list, int index) {
     return cache;
 }
 
-void* glist_pop(GList *list) {
+void* dslist_pop(DSList *list) {
     if (!list) { return NULL; }
-    return glist_remove_index(list, (int)list->len-1);
+    return dslist_remove_index(list, (int)list->len-1);
 }
 
-void glist_clear(GList *list) {
+void dslist_clear(DSList *list) {
     if (!list) { return; }
-    glist_free(list);
+    dslist_free(list);
     list->len = 0;
 }
 
-int glist_index(GList *list, void *elem) {
+int dslist_index(DSList *list, void *elem) {
     if ((!list) || (!elem) || (!list->cmp)) {
         return GLIST_NULL_POINTER;
     }
@@ -176,14 +175,14 @@ int glist_index(GList *list, void *elem) {
     return GLIST_NOT_FOUND;
 }
 
-void glist_sort(GList *list) {
+void dslist_sort(DSList *list) {
     if ((!list) || (list->len == 0) || (!list->cmp)) {
         return;
     }
     qsort(list->data, list->len, sizeof(void *), list->cmp);
 }
 
-void glist_reverse(GList *list) {
+void dslist_reverse(DSList *list) {
     if (!list) { return; }
 
     // Number of operations required, assuming integer truncation
@@ -201,7 +200,7 @@ void glist_reverse(GList *list) {
     }
 }
 
-GIter* glist_iter(GList *list) {
+GIter* dslist_iter(DSList *list) {
     if (!list) { return NULL; }
 
     GIter *iter = giter_priv_new(ITER_LIST, list);
@@ -217,7 +216,7 @@ GIter* glist_iter(GList *list) {
  */
 
 // Resize a glist upwards
-static bool glist_resize(GList *list, size_t cap) {
+static bool dslist_resize(DSList *list, size_t cap) {
     assert(list);
 
     if ((cap < 1) || (list->cap >= cap)) {
@@ -240,8 +239,8 @@ static bool glist_resize(GList *list, size_t cap) {
     return true;
 }
 
-// Free all of the value pointers in a GList if a free function was given.
-static void glist_free(GList *list) {
+// Free all of the value pointers in a DSList if a free function was given.
+static void dslist_free(DSList *list) {
     assert(list);
     if (!list->free) { return; }
 
@@ -252,7 +251,7 @@ static void glist_free(GList *list) {
 }
 
 // Iterate on the next list entry.
-bool giter_glist_next(GIter *iter) {
+bool giter_dslist_next(GIter *iter) {
     assert(iter);
     assert(iter->type == ITER_LIST);
     void *data = NULL;
@@ -263,7 +262,7 @@ bool giter_glist_next(GIter *iter) {
 
     iter->cur++;
     iter->cnt++;
-    data = glist_get(iter->target.list, iter->cur);
+    data = dslist_get(iter->target.list, iter->cur);
     if (data) {
         return true;
     }

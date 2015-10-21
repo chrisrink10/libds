@@ -13,6 +13,6 @@
 
 #include "libds/list.h"
 
-bool giter_glist_next(GIter *iter);
+bool giter_dslist_next(GIter *iter);
 
 #endif //LIBDS_LISTPRIV_H

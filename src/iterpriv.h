@@ -20,7 +20,7 @@ enum IterType {
 };
 
 union IterTarget {
-    GList *list;
+    DSList *list;
     GDict *dict;
 };
 
