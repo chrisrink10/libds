@@ -15,9 +15,9 @@
 #include "dictpriv.h"
 #include "iterpriv.h"
 
-static const double DEFAULT_GDICT_LOAD = 0.66;
-static const int DEFAULT_GDICT_CAP = 64;
-static const int DEFAULT_GDICT_CAPACITY_FACTOR = 2;
+static const double DSDICT_DEFAULT_LOAD = 0.66;
+static const int DSDICT_DEFAULT_CAP = 64;
+static const int DSDICT_DEFAULT_CAPACITY_FACTOR = 2;
 
 /*
  * Prime moduli for hash table capacity
@@ -26,7 +26,7 @@ static const int DEFAULT_GDICT_CAPACITY_FACTOR = 2;
  * - Powers of 2 given at: https://primes.utm.edu/lists/2small/0bit.html
  */
 #define POW2(n, k) ((1 << n) - k)
-static const int GDICT_MOD_TABLE[] = {
+static const int DSDICT_MOD_TABLE[] = {
         1, 2, 3, 7, 13, 31, 61, 127, 251,                           /* Powers 0 through 8 */
         POW2(9, 3), POW2(10, 3), POW2(11, 9), POW2(12, 3),          /* Powers 9 through 12 */
         POW2(13, 1), POW2(14, 3), POW2(15, 19), POW2(16, 15),       /* Powers 13 through 16 */
@@ -36,31 +36,31 @@ static const int GDICT_MOD_TABLE[] = {
         POW2(29, 3), POW2(30, 35), POW2(31, 1),                     /* Powers 29 through 31 */
 };
 
-struct GDict {
+struct DSDict {
     struct bucket **vals;
     size_t cnt;
     size_t cap;
-    gdict_hash_fn hash;
-    gdict_free_fn free;
+    dsdict_hash_fn hash;
+    dsdict_free_fn free;
 };
 
-static bool gdict_resize(GDict *dict, size_t cap);
-static void gdict_free(GDict *dict);
-static inline int gdict_place(unsigned int hash, size_t cap);
+static bool dsdict_resize(DSDict *dict, size_t cap);
+static void dsdict_free(DSDict *dict);
+static inline int dsdict_place(unsigned int hash, size_t cap);
 
 /*
  * DICTIONARY PUBLIC FUNCTIONS
  */
 
-GDict * gdict_new(gdict_hash_fn hash, gdict_free_fn freefn) {
+DSDict * dsdict_new(dsdict_hash_fn hash, dsdict_free_fn freefn) {
     if (!hash) { return NULL; }
 
-    GDict *dict = malloc(sizeof(GDict));
+    DSDict *dict = malloc(sizeof(DSDict));
     if (!dict) {
         return NULL;
     }
 
-    size_t cap = sizeof(struct bucket *) * DEFAULT_GDICT_CAP;
+    size_t cap = sizeof(struct bucket *) * DSDICT_DEFAULT_CAP;
     dict->vals = calloc(cap, sizeof(struct bucket *));
     if (!dict->vals) {
         free(dict);
@@ -68,28 +68,30 @@ GDict * gdict_new(gdict_hash_fn hash, gdict_free_fn freefn) {
     }
 
     dict->cnt = 0;
-    dict->cap = DEFAULT_GDICT_CAP;
+    dict->cap = DSDICT_DEFAULT_CAP;
     dict->hash = hash;
     dict->free = freefn;
     return dict;
 }
 
-void gdict_destroy(GDict *dict) {
+void dsdict_destroy(DSDict *dict) {
     if (!dict) { return; }
-    gdict_free(dict);
+    dsdict_free(dict);
     free(dict->vals);
     free(dict);
 }
 
-size_t gdict_count(GDict *dict) {
-    return (dict) ? (dict->cnt) : 0;
+size_t dsdict_count(DSDict *dict) {
+    assert(dict);
+    return dict->cnt;
 }
 
-size_t gdict_cap(GDict *dict) {
-    return (dict) ? (dict->cap) : 0;
+size_t dsdict_cap(DSDict *dict) {
+    assert(dict);
+    return dict->cap;
 }
 
-void gdict_foreach(GDict *dict, void (*func)(void*)) {
+void dsdict_foreach(DSDict *dict, void (*func)(void*)) {
     if ((!dict) || (!func)) { return; }
 
     for (int i = 0; i < dict->cnt; i++) {
@@ -104,11 +106,11 @@ void gdict_foreach(GDict *dict, void (*func)(void*)) {
     }
 }
 
-void gdict_put(GDict *dict, void *key, void *val) {
+void dsdict_put(DSDict *dict, void *key, void *val) {
     if ((!dict) || (!key)) { return; }
 
     unsigned int hash = dict->hash(key);
-    int place = gdict_place(hash, dict->cap);
+    int place = dsdict_place(hash, dict->cap);
 
     // Get reference to place and see if there is data there;
     // if not, just set the data
@@ -117,14 +119,14 @@ void gdict_put(GDict *dict, void *key, void *val) {
         dict->vals[place] = malloc(sizeof(struct bucket));
         if (!dict->vals[place]) { return; }
         cur = dict->vals[place];
-        goto gdict_put_op;
+        goto dsdict_put_op;
     }
 
     // If there was data, check if it's the same value;
     // if so, we can overwrite it and we're done
     if (cur->hash == hash) {
         cur->data = val;
-        goto cleanup_gdict_put;
+        goto cleanup_dsdict_put;
     }
 
     // Otherwise traverse linked list and check if we can
@@ -135,7 +137,7 @@ void gdict_put(GDict *dict, void *key, void *val) {
         prev = cur;
         if (cur->hash == hash) {
             cur->data = val;
-            goto cleanup_gdict_put;
+            goto cleanup_dsdict_put;
         }
         cur = cur->next;
     }
@@ -145,7 +147,7 @@ void gdict_put(GDict *dict, void *key, void *val) {
     cur = prev->next;
 
     // Actually perform the titular "put"
-    gdict_put_op:
+dsdict_put_op:
     if (!cur) { return; }
 
     cur->hash = hash;
@@ -154,21 +156,21 @@ void gdict_put(GDict *dict, void *key, void *val) {
     cur->next = NULL;
     dict->cnt++;
 
-    // Clean up and decide if we need to resize now
-    cleanup_gdict_put: {
+    // Clean up and decide if we need to resize no
+cleanup_dsdict_put: {
         double load = ((double)dict->cnt / dict->cap);
-        if (load >= DEFAULT_GDICT_LOAD) {
-            gdict_resize(dict, dict->cap * DEFAULT_GDICT_CAPACITY_FACTOR);
+        if (load >= DSDICT_DEFAULT_LOAD) {
+            dsdict_resize(dict, dict->cap * DSDICT_DEFAULT_CAPACITY_FACTOR);
         }
     }
     return;
 }
 
-void* gdict_get(GDict *dict, void *key) {
+void* dsdict_get(DSDict *dict, void *key) {
     if ((!dict) || (!key)) { return NULL; }
 
     unsigned int hash = dict->hash(key);
-    int place = gdict_place(hash, dict->cap);
+    int place = dsdict_place(hash, dict->cap);
 
     struct bucket *cur = dict->vals[place];
     if (!cur) { return NULL; }
@@ -187,11 +189,11 @@ void* gdict_get(GDict *dict, void *key) {
     return NULL;
 }
 
-void* gdict_del(GDict *dict, void *key) {
+void* dsdict_del(DSDict *dict, void *key) {
     if ((!dict) || (!key)) { return NULL; }
 
     unsigned int hash = dict->hash(key);
-    int place = gdict_place(hash, dict->cap);
+    int place = dsdict_place(hash, dict->cap);
 
     struct bucket *cur = dict->vals[place];
     if (!cur) { return NULL; }
@@ -218,7 +220,7 @@ void* gdict_del(GDict *dict, void *key) {
     return NULL;
 }
 
-GIter* gdict_iter(GDict *dict) {
+GIter* dsdict_iter(DSDict *dict) {
     if (!dict) { return NULL; }
 
     GIter *iter = giter_priv_new(ITER_DICT, dict);
@@ -233,8 +235,8 @@ GIter* gdict_iter(GDict *dict) {
  * PRIVATE FUNCTIONS
  */
 
-// Resize a GDict upwards
-static bool gdict_resize(GDict *dict, size_t cap) {
+// Resize a DSDict upwards
+static bool dsdict_resize(DSDict *dict, size_t cap) {
     assert(dict);
 
     if ((cap < 1) || (dict->cap >= cap)) {
@@ -248,13 +250,13 @@ static bool gdict_resize(GDict *dict, size_t cap) {
         return false;
     }
 
-    // TODO: Properly resize a GDict object
+    // TODO: Properly resize a DSDict object
 
     return true;
 }
 
-// Free all of the value pointers in a GDict if a free function was given.
-static void gdict_free(GDict *dict) {
+// Free all of the value pointers in a DSDict if a free function was given.
+static void dsdict_free(DSDict *dict) {
     assert(dict);
     bool can_free = (dict->free) ? true : false;
 
@@ -281,14 +283,14 @@ static void gdict_free(GDict *dict) {
 }
 
 // Given a hash value and a capacity, compute the place of the element in the array.
-static inline int gdict_place(unsigned int hash, size_t cap) {
+static inline int dsdict_place(unsigned int hash, size_t cap) {
     int power = (int)log2((int)cap);
-    int mod = ((power >= 0) && (power <= 31)) ? GDICT_MOD_TABLE[power] : (int)cap;
+    int mod = ((power >= 0) && (power <= 31)) ? DSDICT_MOD_TABLE[power] : (int)cap;
     return (hash % mod);
 }
 
 // Iterate on the next dictionary entry.
-bool giter_gdict_next(GIter *iter, bool advance) {
+bool giter_dsdict_next(GIter *iter, bool advance) {
     assert(iter);
     assert(iter->type == ITER_DICT);
 
@@ -299,7 +301,7 @@ bool giter_gdict_next(GIter *iter, bool advance) {
 
     // Get the initial node pointer
     if (iter->cur == GITER_NEW_ITERATOR) {
-        GDict *dict = iter->target.dict;
+        DSDict *dict = iter->target.dict;
 
         // We do not need to traverse any linked lists
         // since this is explicitly the first node
@@ -331,7 +333,7 @@ bool giter_gdict_next(GIter *iter, bool advance) {
     }
 
     // Otherwise, traverse through the array to find the next pointer
-    GDict *dict = iter->target.dict;
+    DSDict *dict = iter->target.dict;
     for (int i = (iter->cur + 1); i < dict->cap; i++) {
         if (dict->vals[i]) {
             if (advance) {

@@ -21,7 +21,7 @@ enum IterType {
 
 union IterTarget {
     DSList *list;
-    GDict *dict;
+    DSDict *dict;
 };
 
 struct GIter {

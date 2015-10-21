@@ -18,9 +18,9 @@
 // Test objects
 static DSBuffer *buf_test = NULL;
 static DSList *list_test = NULL;
-static GDict *dict_test = NULL;
-static int gdict_collision_cap = 0;
-static int gdict_collision_place = 0;
+static DSDict *dict_test = NULL;
+static int dsdict_collision_cap = 0;
+static int dsdict_collision_place = 0;
 
 // Forward declarations for private functions
 static int list_test_comparator(const void *left, void const *right);
@@ -535,12 +535,12 @@ void list_test_iter(void) {
 }
 
 void dict_test_setup(void) {
-    dict_test = gdict_new(dsbuf_hash, (dslist_free_fn) dsbuf_destroy);
+    dict_test = dsdict_new(dsbuf_hash, (dslist_free_fn) dsbuf_destroy);
     CU_ASSERT_FATAL(dict_test != NULL);
 }
 
 void dict_test_teardown(void) {
-    gdict_destroy(dict_test);
+    dsdict_destroy(dict_test);
     dict_test = NULL;
 }
 
@@ -556,23 +556,23 @@ void dict_test_put(void) {
     DSBuffer *test2 = NULL;
 
     /* Test for invalid inputs */
-    gdict_put(NULL, key1, "String");
-    CU_ASSERT(gdict_count(dict_test) == 0);
-    gdict_put(dict_test, NULL, "String");
-    CU_ASSERT(gdict_count(dict_test) == 0);
+    dsdict_put(NULL, key1, "String");
+    CU_ASSERT(dsdict_count(dict_test) == 0);
+    dsdict_put(dict_test, NULL, "String");
+    CU_ASSERT(dsdict_count(dict_test) == 0);
 
     /* Perform the first put */
-    gdict_put(dict_test, key1, val1);
-    CU_ASSERT(gdict_count(dict_test) == 1);
-    test1 = gdict_get(dict_test, key1);
+    dsdict_put(dict_test, key1, val1);
+    CU_ASSERT(dsdict_count(dict_test) == 1);
+    test1 = dsdict_get(dict_test, key1);
     CU_ASSERT(test1 != NULL);
     CU_ASSERT(test1 == val1);
     CU_ASSERT(dsbuf_equals(test1, val1) == true);
 
     /* Verify that a put with the same key overwrites properly */
-    gdict_put(dict_test, key1, val2);
-    CU_ASSERT(gdict_count(dict_test) == 1);
-    test2 = gdict_get(dict_test, key1);
+    dsdict_put(dict_test, key1, val2);
+    CU_ASSERT(dsdict_count(dict_test) == 1);
+    test2 = dsdict_get(dict_test, key1);
     CU_ASSERT(test2 != NULL);
     CU_ASSERT(test2 == val2);
     CU_ASSERT(dsbuf_equals(test2, val2) == true);
@@ -583,7 +583,7 @@ void dict_test_put(void) {
 }
 
 void dict_test_collision(void) {
-    GDict *dict = gdict_new(dict_test_hash, (gdict_free_fn)dsbuf_destroy);
+    DSDict *dict = dsdict_new(dict_test_hash, (dsdict_free_fn)dsbuf_destroy);
 
     DSBuffer *key1 = dsbuf_new("Key1");
     CU_ASSERT_FATAL(key1 != NULL);
@@ -601,20 +601,20 @@ void dict_test_collision(void) {
 
     /* Mock our hash, so we can simulate key collision
      * We are forcing this both puts into the bucket 10 */
-    gdict_collision_cap = (int)gdict_cap(dict);
-    gdict_collision_place = 10;
+    dsdict_collision_cap = (int)dsdict_cap(dict);
+    dsdict_collision_place = 10;
 
     /* Perform the first put */
-    gdict_put(dict, key1, val1);
-    CU_ASSERT(gdict_count(dict) == 1);
-    test1 = gdict_get(dict, key1);
+    dsdict_put(dict, key1, val1);
+    CU_ASSERT(dsdict_count(dict) == 1);
+    test1 = dsdict_get(dict, key1);
     CU_ASSERT(test1 == val1);
     CU_ASSERT(dsbuf_equals(test1, val1) == true);
 
     /* Perform the second put, which needs to go into the same bucket */
-    gdict_put(dict, key2, val2);
-    CU_ASSERT(gdict_count(dict) == 2);
-    test2 = gdict_get(dict, key2);
+    dsdict_put(dict, key2, val2);
+    CU_ASSERT(dsdict_count(dict) == 2);
+    test2 = dsdict_get(dict, key2);
     CU_ASSERT(test2 != NULL);
     CU_ASSERT(test2 == val2);
     CU_ASSERT(dsbuf_equals(test2, val2) == true);
@@ -623,13 +623,13 @@ void dict_test_collision(void) {
     /* Make sure even in the case of collision that we do not get an
      * incorrect value back from a key which just collided (i.e. another
      * value on the same linked list) */
-    test3 = gdict_get(dict, key3);
+    test3 = dsdict_get(dict, key3);
     CU_ASSERT(test3 == NULL);
 
     dsbuf_destroy(key1);
     dsbuf_destroy(key2);
     dsbuf_destroy(key3);
-    gdict_destroy(dict);
+    dsdict_destroy(dict);
 }
 
 void dict_test_get(void) {
@@ -641,17 +641,17 @@ void dict_test_get(void) {
     DSBuffer *test1 = NULL;
 
     /* Test for invalid inputs */
-    CU_ASSERT(gdict_get(NULL, key1) == NULL);
-    CU_ASSERT(gdict_get(dict_test, NULL) == NULL);
-    CU_ASSERT(gdict_get(dict_test, key1) == NULL);
+    CU_ASSERT(dsdict_get(NULL, key1) == NULL);
+    CU_ASSERT(dsdict_get(dict_test, NULL) == NULL);
+    CU_ASSERT(dsdict_get(dict_test, key1) == NULL);
 
     /* Make sure we get a value back */
-    gdict_put(dict_test, key1, val1);
-    CU_ASSERT(gdict_count(dict_test) == 1);
-    test1 = gdict_get(dict_test, key1);
+    dsdict_put(dict_test, key1, val1);
+    CU_ASSERT(dsdict_count(dict_test) == 1);
+    test1 = dsdict_get(dict_test, key1);
     CU_ASSERT(test1 == val1);
     CU_ASSERT(dsbuf_equals(test1, val1) == true);
-    CU_ASSERT(gdict_count(dict_test) == 1);
+    CU_ASSERT(dsdict_count(dict_test) == 1);
 
     dsbuf_destroy(key1);
 }
@@ -666,23 +666,23 @@ void dict_test_del(void) {
     DSBuffer *test2 = NULL;
 
     /* Test for invalid inputs */
-    CU_ASSERT(gdict_del(NULL, key1) == NULL);
-    CU_ASSERT(gdict_del(dict_test, NULL) == NULL);
-    CU_ASSERT(gdict_del(dict_test, key1) == NULL);
+    CU_ASSERT(dsdict_del(NULL, key1) == NULL);
+    CU_ASSERT(dsdict_del(dict_test, NULL) == NULL);
+    CU_ASSERT(dsdict_del(dict_test, key1) == NULL);
 
     /* Make sure we get a value back */
-    gdict_put(dict_test, key1, val1);
-    CU_ASSERT(gdict_count(dict_test) == 1);
-    test1 = gdict_get(dict_test, key1);
+    dsdict_put(dict_test, key1, val1);
+    CU_ASSERT(dsdict_count(dict_test) == 1);
+    test1 = dsdict_get(dict_test, key1);
     CU_ASSERT(test1 == val1);
     CU_ASSERT(dsbuf_equals(test1, val1) == true);
-    CU_ASSERT(gdict_count(dict_test) == 1);
+    CU_ASSERT(dsdict_count(dict_test) == 1);
 
     /* Attempt to delete the value */
-    test2 = gdict_del(dict_test, key1);
+    test2 = dsdict_del(dict_test, key1);
     CU_ASSERT(test2 == val1);
     CU_ASSERT(dsbuf_equals(test2, val1) == true);
-    CU_ASSERT(gdict_count(dict_test) == 0);
+    CU_ASSERT(dsdict_count(dict_test) == 0);
 
     dsbuf_destroy(key1);
     dsbuf_destroy(val1);
@@ -721,5 +721,5 @@ static void test_print(void *obj) {
 // you need the same hash again for a get).
 static unsigned int dict_test_hash(void *obj) {
     char *str = *(char**)obj;
-    return (unsigned int)((strlen(str) * gdict_collision_cap) + gdict_collision_place);
+    return (unsigned int)((strlen(str) * dsdict_collision_cap) + dsdict_collision_place);
 }

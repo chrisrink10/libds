@@ -22,7 +22,7 @@ bool giter_next(GIter *iter) {
 
     switch (iter->type) {
         case ITER_DICT:
-            return giter_gdict_next(iter, true);
+            return giter_dsdict_next(iter, true);
         case ITER_LIST: {
             return giter_dslist_next(iter);
         }
@@ -36,7 +36,7 @@ bool giter_has_next(GIter *iter) {
 
     switch (iter->type) {
         case ITER_DICT:
-            return giter_gdict_next(iter, false);
+            return giter_dsdict_next(iter, false);
         case ITER_LIST:
             return (dslist_get(iter->target.list, iter->cur+1) != NULL);
     }
