@@ -430,9 +430,9 @@ void list_test_remove_index(void) {
 }
 
 void list_test_index(void) {
-    CU_ASSERT(dslist_index(NULL, list_test) == GLIST_NULL_POINTER);
-    CU_ASSERT(dslist_index(list_test, NULL) == GLIST_NULL_POINTER);
-    CU_ASSERT(dslist_index(list_test, list_test) == GLIST_NOT_FOUND);
+    CU_ASSERT(dslist_index(NULL, list_test) == DSLIST_NULL_POINTER);
+    CU_ASSERT(dslist_index(list_test, NULL) == DSLIST_NULL_POINTER);
+    CU_ASSERT(dslist_index(list_test, list_test) == DSLIST_NOT_FOUND);
 
     for (int i = 0; i < 8; i++) {
         char *some = "Test %d";

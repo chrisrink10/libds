@@ -14,8 +14,6 @@
 #include "libds/list.h"
 #include "iterpriv.h"
 
-
-
 struct DSList {
     void **data;
     size_t len;
@@ -31,21 +29,25 @@ static void dslist_free(DSList *list);
  * LIST PUBLIC FUNCTIONS
  */
 
-DSList * dslist_new(dslist_compare_fn cmpfn, dslist_free_fn freefn) {
+DSList* dslist_new(dslist_compare_fn cmpfn, dslist_free_fn freefn) {
+    return dslist_new_cap(DSLIST_DEFAULT_CAPACITY, cmpfn, freefn);
+}
+
+DSList* dslist_new_cap(size_t cap, dslist_compare_fn cmpfn, dslist_free_fn freefn) {
+    assert(cap > 0);
     DSList *list = malloc(sizeof(DSList));
     if (!list) {
         return NULL;
     }
 
-    size_t cap = sizeof(void*) * DSLIST_DEFAULT_CAPACITY;
-    list->data = calloc(cap, sizeof(void*));
+    list->data = calloc(cap, sizeof(void*) * cap);
     if (!list->data) {
         free(list);
         return NULL;
     }
 
     list->len = 0;
-    list->cap = DSLIST_DEFAULT_CAPACITY;
+    list->cap = cap;
     list->cmp = cmpfn;
     list->free = freefn;
     return list;
@@ -59,11 +61,13 @@ void dslist_destroy(DSList *list) {
 }
 
 size_t dslist_len(DSList *list) {
-    return (list) ? (list->len) : 0;
+    assert(list);
+    return list->len;
 }
 
 size_t dslist_cap(DSList *list) {
-    return (list) ? (list->cap) : 0;
+    assert(list);
+    return list->cap;
 }
 
 void* dslist_get(DSList *list, int index) {
@@ -81,13 +85,12 @@ void dslist_foreach(DSList *list, void (*func)(void*)) {
 }
 
 bool dslist_append(DSList *list, void *elem) {
-    if ((!list) || (!elem)) { return false; }
-    return dslist_insert(list, elem, (int)list->len);
+    return (!list) ? (false) : dslist_insert(list, elem, (int)list->len);
 }
 
 bool dslist_extend(DSList *list, DSList *other) {
     if ((!list) || (!other)) { return false; }
-    if (other->len == 0) { return false; }
+    if (other->len == 0) { return true; }
 
     int len = (int)other->len;
     int i = 0;
@@ -162,8 +165,11 @@ void dslist_clear(DSList *list) {
 }
 
 int dslist_index(DSList *list, void *elem) {
-    if ((!list) || (!elem) || (!list->cmp)) {
-        return GLIST_NULL_POINTER;
+    if ((!list) || (!elem)) {
+        return DSLIST_NULL_POINTER;
+    }
+    if (!list->cmp) {
+        return DSLIST_NO_CMP_FUNC;
     }
 
     for(int i = 0; i < list->len; i++) {
@@ -172,7 +178,7 @@ int dslist_index(DSList *list, void *elem) {
         }
     }
 
-    return GLIST_NOT_FOUND;
+    return DSLIST_NOT_FOUND;
 }
 
 void dslist_sort(DSList *list) {
