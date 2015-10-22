@@ -35,6 +35,11 @@ typedef void (*dsdict_free_fn)(void*);
 typedef int (*dsdict_compare_fn)(const void*, const void*);
 
 /**
+* @brief A function accepting a key/value pair to be used in foreach.
+*/
+typedef void (*dsdict_foreach_fn)(const void*, void*);
+
+/**
 * @brief Create a new @c DSDict object with the given hash and free function.
 *
 * The caller is required to specify a @c dsdict_hash_fn and a
@@ -88,14 +93,16 @@ size_t dsdict_cap(DSDict *dict);
 /**
 * @brief Perform the given function on each object in the dictionary.
 *
-* The given function is called for every dictionary element including
-* @c NULL elements. The given function should be able to operate on @c NULL
-* pointers.
+* The given function is called for every non-NULL dictionary element.
+* Callers should take care NOT to modify the key (hence why it is declared
+* @c const) as this would put the dictionary in an invalid state. Callers
+* may modify the value. The iteration order is undefined and callers
+* should not expect any ordering.
 *
 * @param dict a @c DSDict object
-* @param func a function taking a void pointer which returns nothing
+* @param func a function accepting the key/value pair
 */
-void dsdict_foreach(DSDict *dict, void (*func)(void*));
+void dsdict_foreach(DSDict *dict, dsdict_foreach_fn func);
 
 /**
  * @brief Create a new @c GIter object for this dictionary.

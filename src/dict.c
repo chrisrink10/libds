@@ -95,16 +95,16 @@ size_t dsdict_cap(DSDict *dict) {
     return dict->cap;
 }
 
-void dsdict_foreach(DSDict *dict, void (*func)(void*)) {
+void dsdict_foreach(DSDict *dict, dsdict_foreach_fn func) {
     if ((!dict) || (!func)) { return; }
 
     for (int i = 0; i < dict->cnt; i++) {
         if (!dict->vals[i]) { continue; }
-        func(dict->vals[i]->data);
+        func(dict->vals[i]->key, dict->vals[i]->data);
 
         struct bucket *next = dict->vals[i]->next;
         while ((next)){
-            func(next->data);
+            func(next->key, next->data);
             next = next->next;
         }
     }
