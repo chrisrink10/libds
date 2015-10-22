@@ -21,10 +21,5 @@ to simply open a command prompt to the cloned directory and type
 The header files included in the `include/` directory explain how to use
 each of the different data structures provided by the library.
 
-## Caveats
-If the library is not compiled with support for Mutexes, then external
-synchronization will be required to use the structures in a multi-threaded
-environment.
-
 ## License
 MIT License
