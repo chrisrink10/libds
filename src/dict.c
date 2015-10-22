@@ -41,7 +41,8 @@ struct DSDict {
     size_t cnt;
     size_t cap;
     dsdict_hash_fn hash;
-    dsdict_free_fn free;
+    dsdict_free_fn keyfree;
+    dsdict_free_fn valfree;
     dsdict_compare_fn cmp;
 };
 
@@ -53,7 +54,7 @@ static inline int dsdict_place(unsigned int hash, size_t cap);
  * DICTIONARY PUBLIC FUNCTIONS
  */
 
-DSDict * dsdict_new(dsdict_hash_fn hash, dsdict_compare_fn cmpfn, dsdict_free_fn freefn) {
+DSDict * dsdict_new(dsdict_hash_fn hash, dsdict_compare_fn cmpfn, dsdict_free_fn keyfree, dsdict_free_fn valfree) {
     if ((!hash) || (!cmpfn)) { return NULL; }
 
     DSDict *dict = malloc(sizeof(DSDict));
@@ -71,7 +72,8 @@ DSDict * dsdict_new(dsdict_hash_fn hash, dsdict_compare_fn cmpfn, dsdict_free_fn
     dict->cnt = 0;
     dict->cap = DSDICT_DEFAULT_CAP;
     dict->hash = hash;
-    dict->free = freefn;
+    dict->keyfree = keyfree;
+    dict->valfree = valfree;
     dict->cmp = cmpfn;
     return dict;
 }
@@ -127,7 +129,7 @@ void dsdict_put(DSDict *dict, void *key, void *val) {
     // If there was data, check if it's the same value;
     // if so, we can overwrite it and we're done
     if ((cur->hash == hash) && (dict->cmp(cur->key, key) == 0)) {
-        if (dict->free) { dict->free(cur->data); }
+        if (dict->valfree) { dict->valfree(cur->data); }
         cur->data = val;
         goto cleanup_dsdict_put;
     }
@@ -139,7 +141,7 @@ void dsdict_put(DSDict *dict, void *key, void *val) {
     while ((cur)) {
         prev = cur;
         if ((cur->hash == hash) && (dict->cmp(cur->key, key) == 0)) {
-            if (dict->free) { dict->free(cur->data); }
+            if (dict->valfree) { dict->valfree(cur->data); }
             cur->data = val;
             goto cleanup_dsdict_put;
         }
@@ -262,19 +264,26 @@ static bool dsdict_resize(DSDict *dict, size_t cap) {
 // Free all of the value pointers in a DSDict if a free function was given.
 static void dsdict_free(DSDict *dict) {
     assert(dict);
-    bool can_free = (dict->free) ? true : false;
+    bool free_keys = (dict->keyfree) ? true : false;
+    bool free_vals = (dict->valfree) ? true : false;
 
     for (int i = 0; i < dict->cap; i++) {
         if (!dict->vals[i]) { continue; }
-        if (can_free) {
-            dict->free(dict->vals[i]->data);
+        if (free_keys) {
+            dict->keyfree(dict->vals[i]->key);
+        }
+        if (free_vals) {
+            dict->valfree(dict->vals[i]->data);
         }
 
         struct bucket *cur = NULL;
         struct bucket *next = dict->vals[i]->next;
         while ((next)){
-            if (can_free) {
-                dict->free(next->data);
+            if (free_keys) {
+                dict->keyfree(next->key);
+            }
+            if (free_vals) {
+                dict->valfree(next->data);
             }
             cur = next;
             next = next->next;

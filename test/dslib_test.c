@@ -535,7 +535,9 @@ void list_test_iter(void) {
 }
 
 void dict_test_setup(void) {
-    dict_test = dsdict_new(dsbuf_hash, dsbuf_compare, (dslist_free_fn) dsbuf_destroy);
+    dict_test = dsdict_new(dsbuf_hash, dsbuf_compare,
+                           (dsdict_free_fn) dsbuf_destroy,
+                           (dsdict_free_fn) dsbuf_destroy);
     CU_ASSERT_FATAL(dict_test != NULL);
 }
 
@@ -577,12 +579,13 @@ void dict_test_put(void) {
     CU_ASSERT(test2 == val2);
     CU_ASSERT(dsbuf_equals(test2, val2) == true);
 
-    /* Clean up objects no longer in the dict */
-    dsbuf_destroy(key1);
+    /* No cleanup is required since key and value will be freed by teardown */
 }
 
 void dict_test_collision(void) {
-    DSDict *dict = dsdict_new(dict_test_hash, dsbuf_compare, (dsdict_free_fn)dsbuf_destroy);
+    DSDict *dict = dsdict_new(dict_test_hash, dsbuf_compare,
+                              (dsdict_free_fn) dsbuf_destroy,
+                              (dsdict_free_fn) dsbuf_destroy);
 
     DSBuffer *key1 = dsbuf_new("Key1");
     CU_ASSERT_FATAL(key1 != NULL);
@@ -625,9 +628,7 @@ void dict_test_collision(void) {
     test3 = dsdict_get(dict, key3);
     CU_ASSERT(test3 == NULL);
 
-    dsbuf_destroy(key1);
-    dsbuf_destroy(key2);
-    dsbuf_destroy(key3);
+    /* Clean up dict and any keys/values (because free fns were specified) */
     dsdict_destroy(dict);
 }
 
@@ -652,7 +653,7 @@ void dict_test_get(void) {
     CU_ASSERT(dsbuf_equals(test1, val1) == true);
     CU_ASSERT(dsdict_count(dict_test) == 1);
 
-    dsbuf_destroy(key1);
+    /* No cleanup is required since key and value will be freed by teardown */
 }
 
 void dict_test_del(void) {

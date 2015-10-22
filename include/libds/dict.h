@@ -38,17 +38,20 @@ typedef int (*dsdict_compare_fn)(const void*, const void*);
 * @brief Create a new @c DSDict object with the given hash and free function.
 *
 * The caller is required to specify a @c dsdict_hash_fn and a
-* @c dsdict_compare_fn. The @c dsdict_free_fn is optional. If the caller
-* does not specify the free function, then element values will not be
-* freed when the @c DSDict object is destroyed.
+* @c dsdict_compare_fn. The parameter @c valfree is optional. If the caller
+* does not specify @c valfree, then element values will not be freed when
+* the @c DSDict object is destroyed or values are overwritten. The parameter
+* @c keyfree is also optional. If the caller does not specify @c keyfree,
+* then keys will not be freed when the @c DSDict object is destroyed.
 *
 * @param hash a hashing function used to hash dictionary keys
 * @param cmpfn a function which can compare two dictionary keys by value
-* @param freefn a function which can free hash table values
+* @param keyfree a function which can free hash table keys
+* @param valfree a function which can free hash table values
 * @returns a new @c DSDict object or @c NULL if no hash function is
 *          specified or memory could not be allocated
 */
-DSDict* dsdict_new(dsdict_hash_fn hash, dsdict_compare_fn cmpfn, dsdict_free_fn freefn);
+DSDict* dsdict_new(dsdict_hash_fn hash, dsdict_compare_fn cmpfn, dsdict_free_fn keyfree, dsdict_free_fn valfree);
 
 /**
 * @brief Destroy a @c DSDict object.
