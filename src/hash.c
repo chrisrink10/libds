@@ -8,7 +8,7 @@
  * License: MIT (see LICENSE document at source tree root)
  *****************************************************************************/
 
-#include <stdlib.h>
+#include <stdint.h>
 
 static const uint32_t HASH_LARSON_SEED = 23;
 static const uint32_t HASH_LARSON_FACTOR = 101;

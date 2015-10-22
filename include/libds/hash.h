@@ -11,6 +11,8 @@
 #ifndef LIBDS_HASH_H
 #define LIBDS_HASH_H
 
+#include <stdint.h>
+
 uint32_t hash_larson(const char *str);
 uint32_t hash_fnv1(const char *str);
 uint32_t hash_djb2(const char *str);
