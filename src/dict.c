@@ -46,9 +46,10 @@ struct DSDict {
     dsdict_compare_fn cmp;
 };
 
-static bool dsdict_resize(DSDict *dict, size_t cap);
+static bool dsdict_resize(DSDict *dict, size_t newcap);
+static bool transfer_vals(struct bucket **old, size_t oldcap, struct bucket **new, size_t newcap, dsdict_hash_fn hashfn);
 static void dsdict_free(DSDict *dict);
-static inline int dsdict_place(unsigned int hash, size_t cap);
+static inline int compute_index(unsigned int hash, size_t cap);
 
 /*
  * DICTIONARY PUBLIC FUNCTIONS
@@ -114,7 +115,7 @@ void dsdict_put(DSDict *dict, void *key, void *val) {
     if ((!dict) || (!key)) { return; }
 
     unsigned int hash = dict->hash(key);
-    int place = dsdict_place(hash, dict->cap);
+    int place = compute_index(hash, dict->cap);
 
     // Get reference to place and see if there is data there;
     // if not, just set the data
@@ -176,17 +177,17 @@ void* dsdict_get(DSDict *dict, void *key) {
     if ((!dict) || (!key)) { return NULL; }
 
     unsigned int hash = dict->hash(key);
-    int place = dsdict_place(hash, dict->cap);
+    int place = compute_index(hash, dict->cap);
 
     struct bucket *cur = dict->vals[place];
     if (!cur) { return NULL; }
-    if (cur->hash == hash) {
+    if ((cur->hash == hash) && (dict->cmp(cur->key, key) == 0)) {
         return cur->data;
     }
 
     cur = cur->next;
     while ((cur)) {
-        if (cur->hash == hash) {
+        if ((cur->hash == hash) && (dict->cmp(cur->key, key) == 0)) {
             return cur->data;
         }
         cur = cur->next;
@@ -199,11 +200,11 @@ void* dsdict_del(DSDict *dict, void *key) {
     if ((!dict) || (!key)) { return NULL; }
 
     unsigned int hash = dict->hash(key);
-    int place = dsdict_place(hash, dict->cap);
+    int place = compute_index(hash, dict->cap);
 
     struct bucket *cur = dict->vals[place];
     if (!cur) { return NULL; }
-    if (cur->hash == hash) {
+    if ((cur->hash == hash) && (dict->cmp(cur->key, key) == 0)) {
         void *cache = cur->data;
         dict->vals[place] = cur->next;
         free(cur);
@@ -213,7 +214,7 @@ void* dsdict_del(DSDict *dict, void *key) {
 
     cur = cur->next;
     while ((cur)) {
-        if (cur->hash == hash) {
+        if ((cur->hash == hash) && (dict->cmp(cur->key, key) == 0)) {
             void *cache = cur->data;
             dict->vals[place] = cur->next;
             free(cur);
@@ -242,21 +243,79 @@ GIter* dsdict_iter(DSDict *dict) {
  */
 
 // Resize a DSDict upwards
-static bool dsdict_resize(DSDict *dict, size_t cap) {
+static bool dsdict_resize(DSDict *dict, size_t newcap) {
     assert(dict);
 
-    if ((cap < 1) || (dict->cap >= cap)) {
+    if ((newcap < 1) || (dict->cap >= newcap)) {
         return false;
     }
 
+    // Make a new bucket and cache the old values so we can transfer them
     struct bucket **cache = dict->vals;
-    dict->vals = calloc(cap, sizeof(struct bucket));
+    dict->vals = calloc(newcap, sizeof(struct bucket));
     if (!dict->vals) {
         dict->vals = cache;
         return false;
     }
 
-    // TODO: Properly resize a DSDict object
+    // Transfer all of the old values into the new buckets
+    size_t oldcap = dict->cap;
+    if (!transfer_vals(cache, oldcap, dict->vals, newcap, dict->hash)) {
+        free(dict->vals);
+        dict->vals = cache;
+        return false;
+    }
+    dict->cap = newcap;
+
+    // Free the cached buckets, but do not free key/value pairs
+    free(cache);
+    return true;
+}
+
+// Given a hash value and a capacity, compute the place of the element in the array.
+static inline int compute_index(unsigned int hash, size_t cap) {
+    int power = (int)log2((int)cap);
+    int mod = ((power >= 0) && (power <= 31)) ? DSDICT_MOD_TABLE[power] : (int)cap;
+    return (hash % mod);
+}
+
+// Transfer values from the old DSDict bucket cache to the new bucket
+static bool transfer_vals(struct bucket **old, size_t oldcap, struct bucket **new, size_t newcap, dsdict_hash_fn hashfn) {
+    assert(old);
+    assert(new);
+    assert(hashfn);
+
+    // Iterate on every element of the old bucket
+    for (int i = 0; i < oldcap; i++) {
+        // Iterate on every hash table element in the old dictionary
+        struct bucket *curold = old[i];
+        while (curold) {
+            // Compute the new placement for the current element
+            int place = compute_index(curold->hash, newcap);
+
+            // Get reference to place and see if there is data there;
+            // if so, we need to traverse the linked list to get the last
+            // element and insert the hash table into that
+            struct bucket *curnew = new[place];
+            if (curnew) {
+                struct bucket *prev = curnew;
+                while ((curnew)) {
+                    prev = curnew;
+                    curnew = curnew->next;
+                }
+                prev->next = curold;
+                curold = prev->next->next;
+                prev->next->next = NULL;
+            } else {
+                // Transfer the old element to the new slot
+                new[place] = curold;
+                curold = new[place]->next;
+                new[place]->next = NULL;
+            }
+        }
+
+        old[i] = NULL;
+    }
 
     return true;
 }
@@ -293,13 +352,6 @@ static void dsdict_free(DSDict *dict) {
         free(dict->vals[i]);
         dict->vals[i] = NULL;
     }
-}
-
-// Given a hash value and a capacity, compute the place of the element in the array.
-static inline int dsdict_place(unsigned int hash, size_t cap) {
-    int power = (int)log2((int)cap);
-    int mod = ((power >= 0) && (power <= 31)) ? DSDICT_MOD_TABLE[power] : (int)cap;
-    return (hash % mod);
 }
 
 // Iterate on the next dictionary entry.

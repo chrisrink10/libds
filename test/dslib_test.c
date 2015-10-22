@@ -689,7 +689,57 @@ void dict_test_del(void) {
 }
 
 void dict_test_resize(void) {
-    // TODO: test how to resize after implementing resizing
+    static char *keyfmt = "Key %d";
+    static char *valfmt = "Value %d";
+
+    // Put lots of elements into the dictionary (to force multiple resizes)
+    int cap = ((int)dsdict_cap(dict_test)) * 4;
+    for (int i = 0; i < cap; i++) {
+        char *key = malloc(strlen(keyfmt) + 1);
+        CU_ASSERT_FATAL(key != NULL);
+        char *val = malloc(strlen(valfmt) + 1);
+        CU_ASSERT_FATAL(val != NULL);
+
+        sprintf(key, keyfmt, i);
+        sprintf(val, valfmt, i);
+        DSBuffer *keybuf = dsbuf_new(key);
+        CU_ASSERT_FATAL(keybuf != NULL);
+        free(key);
+        DSBuffer *valbuf = dsbuf_new(val);
+        CU_ASSERT_FATAL(valbuf != NULL);
+        free(val);
+
+        dsdict_put(dict_test, keybuf, valbuf);
+        CU_ASSERT(dsdict_count(dict_test) == i+1);
+        CU_ASSERT(dsdict_get(dict_test, keybuf) == valbuf);
+    }
+
+    // Verify all of those elements still exist
+    for (int i = 0; i < cap; i++) {
+        char *key = malloc(strlen(keyfmt) + 1);
+        CU_ASSERT_FATAL(key != NULL);
+        char *val = malloc(strlen(valfmt) + 1);
+        CU_ASSERT_FATAL(val != NULL);
+
+        sprintf(key, keyfmt, i);
+        sprintf(val, valfmt, i);
+        DSBuffer *keybuf = dsbuf_new(key);
+        CU_ASSERT_FATAL(keybuf != NULL);
+        free(key);
+        DSBuffer *valbuf = dsbuf_new(val);
+        CU_ASSERT_FATAL(valbuf != NULL);
+        free(val);
+
+        DSBuffer *tmpval = dsdict_get(dict_test, keybuf);
+        CU_ASSERT(tmpval != NULL);
+        CU_ASSERT(dsbuf_compare(valbuf, tmpval) == 0);
+
+        // Clean these up since they were never inserted into the DSDict
+        dsbuf_destroy(keybuf);
+        dsbuf_destroy(valbuf);
+    }
+
+    CU_ASSERT(dsdict_count(dict_test) == cap);
 }
 
 void dict_test_iter(void) {
