@@ -2,8 +2,11 @@ cmake_minimum_required(VERSION 3.2)
 project(libds)
 
 # Enable CUnit testing
+include(CheckFunctionExists)
 enable_testing()
 find_library(LIB_CUNIT cunit)
+check_function_exists(CU_add_suite_with_setup_and_teardown
+                      HAVE_CUNIT_SETUP_TEARDOWN)
 
 # Find Doxygen library so we can make documentation
 find_package(Doxygen)
@@ -57,7 +60,7 @@ if(DOXYGEN_FOUND)
 endif(DOXYGEN_FOUND)
 
 # Build the test target
-if (LIB_CUNIT)
+if (LIB_CUNIT AND HAVE_CUNIT_SETUP_TEARDOWN)
     include_directories(/usr/local/opt/cunit/include)
     set(TEST_SOURCE_FILES test/dslib_test.c
                           test/main_test.c)
@@ -65,7 +68,7 @@ if (LIB_CUNIT)
     target_link_libraries(libds_test libds)
     target_link_libraries(libds_test ${LIB_CUNIT})
     target_link_libraries(libds_test m)
-endif(LIB_CUNIT)
+endif(LIB_CUNIT AND HAVE_CUNIT_SETUP_TEARDOWN)
 
 # Install the library header files
 if (NOT DEBUG)
