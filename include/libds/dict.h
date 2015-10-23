@@ -11,6 +11,7 @@
 #ifndef LIBDS_DICT_H
 #define LIBDS_DICT_H
 
+#include <stdint.h>
 #include "libds/iter.h"
 
 /**
@@ -21,7 +22,7 @@ typedef struct DSDict DSDict;
 /**
 * @brief Hash function used in a @c DSDict to sort and search.
 */
-typedef unsigned int (*dsdict_hash_fn)(void*);
+typedef uint32_t (*dsdict_hash_fn)(void*);
 
 /**
 * @brief Free function used in a @c DSDict free remaining elements when

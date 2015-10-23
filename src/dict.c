@@ -10,6 +10,7 @@
 
 #include <assert.h>
 #include <math.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include "dictpriv.h"
@@ -26,14 +27,14 @@ static const int DSDICT_DEFAULT_CAPACITY_FACTOR = 2;
  * - Powers of 2 given at: https://primes.utm.edu/lists/2small/0bit.html
  */
 #define POW2(n, k) ((1 << n) - k)
-static const int DSDICT_MOD_TABLE[] = {
+static const uint32_t DSDICT_MOD_TABLE[] = {
         1, 2, 3, 7, 13, 31, 61, 127, 251,                           /* Powers 0 through 8 */
         POW2(9, 3), POW2(10, 3), POW2(11, 9), POW2(12, 3),          /* Powers 9 through 12 */
         POW2(13, 1), POW2(14, 3), POW2(15, 19), POW2(16, 15),       /* Powers 13 through 16 */
         POW2(17, 1), POW2(18, 5), POW2(19, 1), POW2(20, 3),         /* Powers 17 through 20 */
         POW2(21, 9), POW2(22, 3), POW2(23, 15), POW2(24, 3),        /* Powers 21 through 24 */
         POW2(25, 39), POW2(26, 5), POW2(27, 39), POW2(28, 57),      /* Powers 25 through 28 */
-        POW2(29, 3), POW2(30, 35), POW2(31, 1),                     /* Powers 29 through 31 */
+        POW2(29, 3), POW2(30, 35), INT32_MAX,                       /* Powers 29 through 31 */
 };
 
 struct DSDict {
@@ -49,7 +50,7 @@ struct DSDict {
 static bool dsdict_resize(DSDict *dict, size_t newcap);
 static bool transfer_vals(struct bucket **old, size_t oldcap, struct bucket **new, size_t newcap, dsdict_hash_fn hashfn);
 static void dsdict_free(DSDict *dict);
-static inline int compute_index(unsigned int hash, size_t cap);
+static inline int compute_index(uint32_t hash, size_t cap);
 
 /*
  * DICTIONARY PUBLIC FUNCTIONS
@@ -273,7 +274,7 @@ static bool dsdict_resize(DSDict *dict, size_t newcap) {
 }
 
 // Given a hash value and a capacity, compute the place of the element in the array.
-static inline int compute_index(unsigned int hash, size_t cap) {
+static inline int compute_index(uint32_t hash, size_t cap) {
     int power = (int)log2((int)cap);
     int mod = ((power >= 0) && (power <= 31)) ? DSDICT_MOD_TABLE[power] : (int)cap;
     return (hash % mod);
