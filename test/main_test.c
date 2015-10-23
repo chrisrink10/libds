@@ -75,6 +75,7 @@ bool setup_list_tests(void)  {
         (CU_add_test(pSuite, "List Pop", list_test_pop) == NULL) ||
         (CU_add_test(pSuite, "List Resize", list_test_resize) == NULL) ||
         (CU_add_test(pSuite, "List Reverse", list_test_reverse) == NULL) ||
+        (CU_add_test(pSuite, "List Clear", list_test_clear) == NULL) ||
         (CU_add_test(pSuite, "List Sort", list_test_sort) == NULL)) {
         return false;
     }

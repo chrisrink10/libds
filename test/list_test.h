@@ -24,6 +24,7 @@ void list_test_pop(void);
 void list_test_resize(void);
 void list_test_sort(void);
 void list_test_reverse(void);
+void list_test_clear(void);
 void list_test_iter(void);
 
 #endif

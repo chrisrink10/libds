@@ -248,10 +248,12 @@ static bool dslist_resize(DSList *list, size_t cap) {
 // Free all of the value pointers in a DSList if a free function was given.
 static void dslist_free(DSList *list) {
     assert(list);
-    if (!list->free) { return; }
+    bool has_free = (list->free) ? true : false;
 
     for (int i = 0; i < list->len; i++) {
-        list->free(list->data[i]);
+        if (has_free) {
+            list->free(list->data[i]);
+        }
         list->data[i] = NULL;
     }
 }

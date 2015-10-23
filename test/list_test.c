@@ -348,6 +348,27 @@ void list_test_reverse(void) {
     }
 }
 
+void list_test_clear(void) {
+    /* Insert multiple strings */
+    for (int i = 0; i < 6; i++) {
+        char *some = "Test %d";
+        char *next = malloc(strlen(some) + 1);
+        CU_ASSERT_FATAL(next != NULL);
+        sprintf(next, some, i);
+
+        CU_ASSERT(dslist_insert(list_test, next, 0) == true);
+    }
+
+    /* Clear out the list */
+    dslist_clear(list_test);
+    CU_ASSERT(dslist_len(list_test) == 0);
+
+    /* Verify that the elements are no longer in the list */
+    for (int i = 0; i < 6; i++) {
+        CU_ASSERT(dslist_get(list_test, i) == NULL);
+    }
+}
+
 void list_test_iter(void) {
 
 }
