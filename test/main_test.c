@@ -9,7 +9,7 @@
  *****************************************************************************/
 
 #include <stdbool.h>
-#include "cunit/Basic.h"
+#include "CUnit/Basic.h"
 #include "dslib_test.h"
 
 bool setup_buffer_tests(void) {

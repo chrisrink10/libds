@@ -12,7 +12,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "libds/libds.h"
-#include "cunit/CUnit.h"
+#include "CUnit/CUnit.h"
 #include "dslib_test.h"
 
 // Test objects

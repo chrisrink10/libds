@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.2)
 project(libds)
 
 # Enable CUnit testing
@@ -52,12 +52,14 @@ if(DOXYGEN_FOUND)
 endif(DOXYGEN_FOUND)
 
 # Build the test target
-include_directories(/usr/local/opt/cunit/include)
-set(TEST_SOURCE_FILES test/dslib_test.c
-                      test/main_test.c)
-add_executable(libds_test ${TEST_SOURCE_FILES})
-target_link_libraries(libds_test libds)
-target_link_libraries(libds_test ${LIB_CUNIT})
+if (LIB_CUNIT)
+    include_directories(/usr/local/opt/cunit/include)
+    set(TEST_SOURCE_FILES test/dslib_test.c
+                          test/main_test.c)
+    add_executable(libds_test ${TEST_SOURCE_FILES})
+    target_link_libraries(libds_test libds)
+    target_link_libraries(libds_test ${LIB_CUNIT})
+endif(LIB_CUNIT)
 
 # Install the library header files
 if (NOT DEBUG)
