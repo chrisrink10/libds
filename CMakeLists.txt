@@ -12,6 +12,11 @@ find_package(Doxygen)
 set(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin/")
 set(LIBRARY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin/")
 set(CMAKE_C_FLAGS "-std=c99 -g -Wall -Werror")
+if (DEBUG)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+else(DEBUG)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
+endif(DEBUG)
 
 # Build the library
 include_directories(${PROJECT_SOURCE_DIR}/include)
