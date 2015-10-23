@@ -8,8 +8,10 @@
  * License: MIT (see LICENSE document at source tree root)
  *****************************************************************************/
 
-#include <stdlib.h>
+#include <math.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include "libds/libds.h"
 #include "CUnit/CUnit.h"
@@ -694,10 +696,11 @@ void dict_test_resize(void) {
 
     // Put lots of elements into the dictionary (to force multiple resizes)
     int cap = ((int)dsdict_cap(dict_test)) * 4;
+    int xtra = (int)log10(cap) + 2;
     for (int i = 0; i < cap; i++) {
-        char *key = malloc(strlen(keyfmt) + 1);
+        char *key = malloc(strlen(keyfmt) + xtra);
         CU_ASSERT_FATAL(key != NULL);
-        char *val = malloc(strlen(valfmt) + 1);
+        char *val = malloc(strlen(valfmt) + xtra);
         CU_ASSERT_FATAL(val != NULL);
 
         sprintf(key, keyfmt, i);
@@ -716,9 +719,9 @@ void dict_test_resize(void) {
 
     // Verify all of those elements still exist
     for (int i = 0; i < cap; i++) {
-        char *key = malloc(strlen(keyfmt) + 1);
+        char *key = malloc(strlen(keyfmt) + xtra);
         CU_ASSERT_FATAL(key != NULL);
-        char *val = malloc(strlen(valfmt) + 1);
+        char *val = malloc(strlen(valfmt) + xtra);
         CU_ASSERT_FATAL(val != NULL);
 
         sprintf(key, keyfmt, i);

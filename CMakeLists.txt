@@ -64,6 +64,7 @@ if (LIB_CUNIT)
     add_executable(libds_test ${TEST_SOURCE_FILES})
     target_link_libraries(libds_test libds)
     target_link_libraries(libds_test ${LIB_CUNIT})
+    target_link_libraries(libds_test m)
 endif(LIB_CUNIT)
 
 # Install the library header files
