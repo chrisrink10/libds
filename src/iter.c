@@ -49,7 +49,7 @@ void* dsiter_key(DSIter *iter) {
 
     switch(iter->type) {
         case ITER_DICT:
-            return iter->node->key;
+            return (iter->node) ? (iter->node->key) : NULL;
         case ITER_LIST:
             return NULL;
     }
@@ -62,7 +62,7 @@ void* dsiter_value(DSIter *iter) {
 
     switch(iter->type) {
         case ITER_DICT:
-            return iter->node->data;
+            return (iter->node) ? (iter->node->data) : NULL;
         case ITER_LIST:
             return dslist_get(iter->target.list, iter->cur);
     }
