@@ -19,8 +19,8 @@ typedef struct DSIter DSIter;
 /**
  * @brief Constants used as sentinel values for @c DSIter objects.
  */
-static const int GITER_NEW_ITERATOR = -1;
-static const int GITER_NO_MORE_ELEMENTS = -2;
+static const int DSITER_NEW_ITERATOR = -1;
+static const int DSITER_NO_MORE_ELEMENTS = -2;
 
 /**
  * @brief Advance the next element in the collection. Returns true if there

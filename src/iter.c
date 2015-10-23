@@ -103,8 +103,8 @@ DSIter* dsiter_priv_new(enum IterType type, void *target) {
     }
 
     iter->type = type;
-    iter->cnt = GITER_NEW_ITERATOR;
-    iter->cur = GITER_NEW_ITERATOR;
+    iter->cnt = DSITER_NEW_ITERATOR;
+    iter->cur = DSITER_NEW_ITERATOR;
     iter->node = NULL;
     switch(type) {
         case ITER_DICT:

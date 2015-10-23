@@ -262,7 +262,7 @@ bool dsiter_dslist_next(DSIter *iter) {
     assert(iter->type == ITER_LIST);
     void *data = NULL;
 
-    if (iter->cur == GITER_NO_MORE_ELEMENTS) {
+    if (iter->cur == DSITER_NO_MORE_ELEMENTS) {
         return false;
     }
 
@@ -273,7 +273,7 @@ bool dsiter_dslist_next(DSIter *iter) {
         return true;
     }
 
-    iter->cur = GITER_NO_MORE_ELEMENTS;
-    iter->cnt = GITER_NO_MORE_ELEMENTS;
+    iter->cur = DSITER_NO_MORE_ELEMENTS;
+    iter->cnt = DSITER_NO_MORE_ELEMENTS;
     return false;
 }

@@ -361,12 +361,12 @@ bool dsiter_dsdict_next(DSIter *iter, bool advance) {
     assert(iter->type == ITER_DICT);
 
     // If we already know there are no more elements, quit
-    if (iter->cur == GITER_NO_MORE_ELEMENTS) {
+    if (iter->cur == DSITER_NO_MORE_ELEMENTS) {
         return false;
     }
 
     // Get the initial node pointer
-    if (iter->cur == GITER_NEW_ITERATOR) {
+    if (iter->cur == DSITER_NEW_ITERATOR) {
         DSDict *dict = iter->target.dict;
 
         // We do not need to traverse any linked lists
@@ -383,8 +383,8 @@ bool dsiter_dsdict_next(DSIter *iter, bool advance) {
 
         // No elements found in this dictionary
         if (advance) {
-            iter->cur = GITER_NO_MORE_ELEMENTS;
-            iter->cnt = GITER_NO_MORE_ELEMENTS;
+            iter->cur = DSITER_NO_MORE_ELEMENTS;
+            iter->cnt = DSITER_NO_MORE_ELEMENTS;
         }
         return false;
     }
@@ -413,8 +413,8 @@ bool dsiter_dsdict_next(DSIter *iter, bool advance) {
 
     // If we get here, there is no more data in the dict
     if (advance) {
-        iter->cur = GITER_NO_MORE_ELEMENTS;
-        iter->cnt = GITER_NO_MORE_ELEMENTS;
+        iter->cur = DSITER_NO_MORE_ELEMENTS;
+        iter->cnt = DSITER_NO_MORE_ELEMENTS;
         iter->node = NULL;
     }
     return false;
