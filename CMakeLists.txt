@@ -59,8 +59,10 @@ endif(DOXYGEN_FOUND)
 # Build the test target
 if (LIB_CUNIT)
     include_directories(/usr/local/opt/cunit/include)
-    set(TEST_SOURCE_FILES test/dslib_test.c
-                          test/main_test.c)
+    set(TEST_SOURCE_FILES test/main_test.c
+                          test/buffer_test.c
+                          test/dict_test.c
+                          test/list_test.c)
     add_executable(libds_test ${TEST_SOURCE_FILES})
     target_link_libraries(libds_test libds)
     target_link_libraries(libds_test ${LIB_CUNIT})

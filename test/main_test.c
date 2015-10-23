@@ -10,7 +10,9 @@
 
 #include <stdbool.h>
 #include "CUnit/Basic.h"
-#include "dslib_test.h"
+#include "buffer_test.h"
+#include "dict_test.h"
+#include "list_test.h"
 
 bool setup_buffer_tests(void) {
     /* add a suite to the registry */
