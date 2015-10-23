@@ -24,7 +24,7 @@ union IterTarget {
     DSDict *dict;
 };
 
-struct GIter {
+struct DSIter {
     enum IterType type;
     union IterTarget target;
     int cur;
@@ -32,6 +32,6 @@ struct GIter {
     struct bucket *node;
 };
 
-GIter* giter_priv_new(enum IterType type, void *target);
+DSIter* dsiter_priv_new(enum IterType type, void *target);
 
 #endif //LIBDS_ITERPRIV_H

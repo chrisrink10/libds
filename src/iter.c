@@ -17,26 +17,26 @@
  * ITERATOR PUBLIC FUNCTIONS
  */
 
-bool giter_next(GIter *iter) {
+bool dsiter_next(DSIter *iter) {
     if (!iter) { return false; }
 
     switch (iter->type) {
         case ITER_DICT:
-            return giter_dsdict_next(iter, true);
+            return dsiter_dsdict_next(iter, true);
         case ITER_LIST: {
-            return giter_dslist_next(iter);
+            return dsiter_dslist_next(iter);
         }
     }
 
     return false;
 }
 
-bool giter_has_next(GIter *iter) {
+bool dsiter_has_next(DSIter *iter) {
     if (!iter) { return false; }
 
     switch (iter->type) {
         case ITER_DICT:
-            return giter_dsdict_next(iter, false);
+            return dsiter_dsdict_next(iter, false);
         case ITER_LIST:
             return (dslist_get(iter->target.list, iter->cur+1) != NULL);
     }
@@ -44,7 +44,7 @@ bool giter_has_next(GIter *iter) {
     return false;
 }
 
-void* giter_key(GIter *iter) {
+void* dsiter_key(DSIter *iter) {
     if (!iter) { return NULL; }
 
     switch(iter->type) {
@@ -57,7 +57,7 @@ void* giter_key(GIter *iter) {
     return NULL;
 }
 
-void* giter_value(GIter *iter) {
+void* dsiter_value(DSIter *iter) {
     if (!iter) { return NULL; }
 
     switch(iter->type) {
@@ -70,12 +70,12 @@ void* giter_value(GIter *iter) {
     return NULL;
 }
 
-int giter_index(GIter *iter) {
+int dsiter_index(DSIter *iter) {
     if (!iter) { return EOF; }
     return iter->cnt;
 }
 
-void giter_destroy(GIter *iter) {
+void dsiter_destroy(DSIter *iter) {
     if (!iter) { return; }
 
     switch (iter->type) {
@@ -95,9 +95,9 @@ void giter_destroy(GIter *iter) {
  * PRIVATE FUNCTIONS
  */
 
-// Create a new GIter of the given type on the given target.
-GIter* giter_priv_new(enum IterType type, void *target) {
-    GIter *iter = malloc(sizeof(GIter));
+// Create a new DSIter of the given type on the given target.
+DSIter* dsiter_priv_new(enum IterType type, void *target) {
+    DSIter *iter = malloc(sizeof(DSIter));
     if (!iter) {
         return NULL;
     }
@@ -114,7 +114,7 @@ GIter* giter_priv_new(enum IterType type, void *target) {
             iter->target.list = target;
             break;
         default:
-            giter_destroy(iter);
+            dsiter_destroy(iter);
             return NULL;
     }
 

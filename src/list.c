@@ -206,10 +206,10 @@ void dslist_reverse(DSList *list) {
     }
 }
 
-GIter* dslist_iter(DSList *list) {
+DSIter* dslist_iter(DSList *list) {
     if (!list) { return NULL; }
 
-    GIter *iter = giter_priv_new(ITER_LIST, list);
+    DSIter *iter = dsiter_priv_new(ITER_LIST, list);
     if (!iter) {
         return NULL;
     }
@@ -257,7 +257,7 @@ static void dslist_free(DSList *list) {
 }
 
 // Iterate on the next list entry.
-bool giter_dslist_next(GIter *iter) {
+bool dsiter_dslist_next(DSIter *iter) {
     assert(iter);
     assert(iter->type == ITER_LIST);
     void *data = NULL;

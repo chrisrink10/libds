@@ -20,6 +20,6 @@ struct bucket{
     struct bucket *next;
 };
 
-bool giter_dsdict_next(GIter *iter, bool advance);
+bool dsiter_dsdict_next(DSIter *iter, bool advance);
 
 #endif //LIBDS_DICTPRIV_H

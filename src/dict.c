@@ -228,10 +228,10 @@ void* dsdict_del(DSDict *dict, void *key) {
     return NULL;
 }
 
-GIter* dsdict_iter(DSDict *dict) {
+DSIter* dsdict_iter(DSDict *dict) {
     if (!dict) { return NULL; }
 
-    GIter *iter = giter_priv_new(ITER_DICT, dict);
+    DSIter *iter = dsiter_priv_new(ITER_DICT, dict);
     if (!iter) {
         return NULL;
     }
@@ -356,7 +356,7 @@ static void dsdict_free(DSDict *dict) {
 }
 
 // Iterate on the next dictionary entry.
-bool giter_dsdict_next(GIter *iter, bool advance) {
+bool dsiter_dsdict_next(DSIter *iter, bool advance) {
     assert(iter);
     assert(iter->type == ITER_DICT);
 

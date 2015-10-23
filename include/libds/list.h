@@ -246,10 +246,10 @@ void dslist_sort(DSList *list);
 void dslist_reverse(DSList *list);
 
 /**
-* @brief Create a new @c GIter on this list.
+* @brief Create a new @c DSIter on this list.
 *
 * @param list a @c DSList object
 */
-GIter* dslist_iter(DSList *list);
+DSIter* dslist_iter(DSList *list);
 
 #endif //LIBDS_LIST_H

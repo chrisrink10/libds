@@ -106,9 +106,9 @@ size_t dsdict_cap(DSDict *dict);
 void dsdict_foreach(DSDict *dict, dsdict_foreach_fn func);
 
 /**
- * @brief Create a new @c GIter object for this dictionary.
+ * @brief Create a new @c DSIter object for this dictionary.
  */
-GIter* dsdict_iter(DSDict *dict);
+DSIter* dsdict_iter(DSDict *dict);
 
 /**
 * @brief Put the given element in the dictionary by key.
