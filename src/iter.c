@@ -80,14 +80,14 @@ void dsiter_destroy(DSIter *iter) {
 
     switch (iter->type) {
         case ITER_DICT:
-            free(iter->target.dict);
+            iter->target.dict = NULL;
             break;
         case ITER_LIST:
-            free(iter->target.list);
+            iter->target.list = NULL;
             break;
     }
 
-    free(iter->node);
+    iter->node = NULL;
     free(iter);
 }
 
