@@ -50,7 +50,8 @@ bool setup_dict_tests(void)  {
         (CU_add_test(pSuite, "Dict Key Collision", dict_test_collision) == NULL) ||
         (CU_add_test(pSuite, "Dict Get", dict_test_get) == NULL) ||
         (CU_add_test(pSuite, "Dict Del", dict_test_del) == NULL) ||
-        (CU_add_test(pSuite, "Dict Resize", dict_test_resize) == NULL)) {
+        (CU_add_test(pSuite, "Dict Resize", dict_test_resize) == NULL) ||
+        (CU_add_test(pSuite, "Dict Iterator", dict_test_iter) == NULL)) {
         return false;
     }
 

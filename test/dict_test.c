@@ -232,7 +232,47 @@ void dict_test_resize(void) {
 }
 
 void dict_test_iter(void) {
+    int num_iters = 0;
+    DSDict *dict = dsdict_new(dsbuf_hash, dsbuf_compare,
+                              (dsdict_free_fn) dsbuf_destroy,
+                              (dsdict_free_fn) dsbuf_destroy);
+    CU_ASSERT_FATAL(dict != NULL);
 
+    for (int i = 0; i < 6; i++) {
+        char *keyfmt = "Key %d";
+        char *valfmt = "Value %d";
+        char *key = malloc(strlen(keyfmt) + 1);
+        CU_ASSERT_FATAL(key != NULL);
+        sprintf(key, keyfmt, i);
+        char *val = malloc(strlen(valfmt) + 1);
+        CU_ASSERT_FATAL(val != NULL);
+        sprintf(val, valfmt, i);
+
+        DSBuffer *keybuf = dsbuf_new(key);
+        CU_ASSERT_FATAL(keybuf != NULL);
+        free(key);
+        DSBuffer *valbuf = dsbuf_new(val);
+        CU_ASSERT_FATAL(valbuf != NULL);
+        free(val);
+        dsdict_put(dict, keybuf, valbuf);
+        num_iters++;
+    }
+
+    DSIter *iter = dsdict_iter(dict);
+    CU_ASSERT_FATAL(iter != NULL);
+    CU_ASSERT(dsiter_has_next(iter) == true);
+
+    int count_iters = 0;
+    while(dsiter_next(iter)) {
+        CU_ASSERT(dsiter_key(iter) != NULL);
+        CU_ASSERT(dsiter_value(iter) != NULL);
+        count_iters++;
+    }
+
+    CU_ASSERT(count_iters == num_iters);
+    CU_ASSERT(dsiter_has_next(iter) == false);
+    dsiter_destroy(iter);
+    dsdict_destroy(dict);
 }
 
 // Mock hash function for testing hashing collisions. Produces the same
