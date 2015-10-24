@@ -1,5 +1,5 @@
 /*****************************************************************************
- * libds :: list_test.h
+ * libds :: array_test.h
  *
  * Test functions for DSArray.
  *
@@ -8,8 +8,8 @@
  * License: MIT (see LICENSE document at source tree root)
  *****************************************************************************/
 
-#ifndef GRYPHON_LIST_TEST_H
-#define GRYPHON_LIST_TEST_H
+#ifndef GRYPHON_ARRAY_TEST_H
+#define GRYPHON_ARRAY_TEST_H
 
 void array_test_setup(void);
 void array_test_teardown(void);

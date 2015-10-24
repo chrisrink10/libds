@@ -12,7 +12,7 @@
 #define LIBDS_ITERPRIV_H
 
 #include "dictpriv.h"
-#include "listpriv.h"
+#include "arraypriv.h"
 
 enum IterType {
     ITER_ARRAY,

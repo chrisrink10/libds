@@ -11,8 +11,8 @@
 #ifndef LIBDS_LIBDS_H
 #define LIBDS_LIBDS_H
 
+#include "libds/array.h"
 #include "libds/buffer.h"
-#include "libds/list.h"
 #include "libds/dict.h"
 
 #endif //LIBDS_LIBDS_H

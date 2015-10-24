@@ -1,5 +1,5 @@
 /*****************************************************************************
- * libds :: listpriv.c
+ * libds :: arraypriv.c
  *
  * Private header for the array data structure.
  *
@@ -8,11 +8,11 @@
  * License: MIT (see LICENSE document at source tree root)
  *****************************************************************************/
 
-#ifndef LIBDS_LISTPRIV_H
-#define LIBDS_LISTPRIV_H
+#ifndef LIBDS_ARRAYPRIV_H
+#define LIBDS_ARRAYPRIV_H
 
-#include "libds/list.h"
+#include "libds/array.h"
 
 bool dsiter_dsarray_next(DSIter *iter, bool advance);
 
-#endif //LIBDS_LISTPRIV_H
+#endif //LIBDS_ARRAYPRIV_H

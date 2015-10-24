@@ -12,7 +12,7 @@
 #include "CUnit/Basic.h"
 #include "buffer_test.h"
 #include "dict_test.h"
-#include "list_test.h"
+#include "array_test.h"
 
 bool setup_buffer_tests(void) {
     /* add a suite to the registry */

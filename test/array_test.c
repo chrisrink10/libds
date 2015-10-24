@@ -1,5 +1,5 @@
 /*****************************************************************************
- * libds :: list_test.c
+ * libds :: array_test.c
  *
  * Test functions for DSArray.
  *
@@ -14,7 +14,7 @@
 #include <string.h>
 #include "libds/libds.h"
 #include "CUnit/CUnit.h"
-#include "list_test.h"
+#include "array_test.h"
 
 static DSArray *array_test = NULL;
 

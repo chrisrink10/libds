@@ -1,5 +1,5 @@
 /*****************************************************************************
- * libds :: list.c
+ * libds :: array.c
  *
  * Dynamic array/stack data structure.
  *
@@ -11,7 +11,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "libds/list.h"
+#include "libds/array.h"
 #include "iterpriv.h"
 
 struct DSArray {

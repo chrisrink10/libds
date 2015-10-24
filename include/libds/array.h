@@ -1,5 +1,5 @@
 /**
- * @file list.h
+ * @file array.h
  *
  * @brief Automatically resizing array/stack implementation.
  *
