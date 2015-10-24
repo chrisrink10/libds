@@ -13,6 +13,6 @@
 
 #include "libds/list.h"
 
-bool dsiter_dslist_next(DSIter *iter);
+bool dsiter_dslist_next(DSIter *iter, bool advance);
 
 #endif //LIBDS_LISTPRIV_H

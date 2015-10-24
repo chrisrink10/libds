@@ -24,7 +24,7 @@ bool dsiter_next(DSIter *iter) {
         case ITER_DICT:
             return dsiter_dsdict_next(iter, true);
         case ITER_LIST: {
-            return dsiter_dslist_next(iter);
+            return dsiter_dslist_next(iter, true);
         }
     }
 
@@ -38,7 +38,7 @@ bool dsiter_has_next(DSIter *iter) {
         case ITER_DICT:
             return dsiter_dsdict_next(iter, false);
         case ITER_LIST:
-            return (dslist_get(iter->target.list, iter->cur+1) != NULL);
+            return dsiter_dslist_next(iter, false);
     }
 
     return false;

@@ -370,7 +370,37 @@ void list_test_clear(void) {
 }
 
 void list_test_iter(void) {
+    int num_iters = 0;
+    DSList *list = dslist_new(dsbuf_compare, (dslist_free_fn) dsbuf_destroy);
+    CU_ASSERT_FATAL(list != NULL);
 
+    for (int i = 0; i < 6; i++) {
+        char *some = "Test %d";
+        char *next = malloc(strlen(some) + 1);
+        CU_ASSERT_FATAL(next != NULL);
+        sprintf(next, some, i);
+
+        DSBuffer *buf = dsbuf_new(next);
+        CU_ASSERT_FATAL(buf != NULL);
+        free(next);
+        CU_ASSERT(dslist_append(list, buf) == true);
+        num_iters++;
+    }
+
+    DSIter *iter = dslist_iter(list);
+    CU_ASSERT_FATAL(iter != NULL);
+    CU_ASSERT(dsiter_has_next(iter) == true);
+
+    int count_iters = 0;
+    while(dsiter_next(iter)) {
+        CU_ASSERT(dsiter_key(iter) == NULL);    /* Always NULL for lists */
+        CU_ASSERT(dsiter_value(iter) != NULL);
+        count_iters++;
+    }
+
+    CU_ASSERT(count_iters != num_iters);
+    CU_ASSERT(dsiter_has_next(iter) == false);
+    dslist_destroy(list);
 }
 
 // Comparator used by the list test suite members

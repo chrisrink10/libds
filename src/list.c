@@ -259,7 +259,7 @@ static void dslist_free(DSList *list) {
 }
 
 // Iterate on the next list entry.
-bool dsiter_dslist_next(DSIter *iter) {
+bool dsiter_dslist_next(DSIter *iter, bool advance) {
     assert(iter);
     assert(iter->type == ITER_LIST);
     void *data = NULL;
@@ -268,14 +268,18 @@ bool dsiter_dslist_next(DSIter *iter) {
         return false;
     }
 
-    iter->cur++;
-    iter->cnt++;
+    if (advance || iter->cur == DSITER_NEW_ITERATOR) {
+        iter->cur++;
+        iter->cnt++;
+    }
     data = dslist_get(iter->target.list, iter->cur);
     if (data) {
         return true;
     }
 
-    iter->cur = DSITER_NO_MORE_ELEMENTS;
-    iter->cnt = DSITER_NO_MORE_ELEMENTS;
+    if (advance) {
+        iter->cur = DSITER_NO_MORE_ELEMENTS;
+        iter->cnt = DSITER_NO_MORE_ELEMENTS;
+    }
     return false;
 }
