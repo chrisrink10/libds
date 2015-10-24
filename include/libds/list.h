@@ -210,6 +210,9 @@ void* dslist_pop(DSList *list);
 /**
 * @brief Clear the entire list, freeing elements as they are removed.
 *
+* List elements are only freed if the free function was provided by the
+* caller when the list was created.
+*
 * @param list a @c DSList object
 */
 void dslist_clear(DSList *list);
