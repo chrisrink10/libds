@@ -5,7 +5,7 @@ Generic data structure library written in C. Includes the following structures:
 
  * String buffer
  * Dictionary / hash table
- * List / stack
+ * Array / stack
 
 ## Getting Started
 To get started, clone this repository on your computer:
