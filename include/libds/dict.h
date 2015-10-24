@@ -11,6 +11,7 @@
 #ifndef LIBDS_DICT_H
 #define LIBDS_DICT_H
 
+#include <stddef.h>
 #include <stdint.h>
 #include "libds/iter.h"
 

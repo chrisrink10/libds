@@ -11,6 +11,8 @@
 #ifndef LIBDS_LIST_H
 #define LIBDS_LIST_H
 
+#include <stdbool.h>
+#include <stddef.h>
 #include "libds/iter.h"
 
 /**

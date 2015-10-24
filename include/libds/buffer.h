@@ -11,6 +11,9 @@
 #ifndef LIBDS_BUFFER_H
 #define LIBDS_BUFFER_H
 
+#include <stdbool.h>
+#include <stddef.h>
+
 /**
 * @brief Auto-resizing character buffer object.
 *

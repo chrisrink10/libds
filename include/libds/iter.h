@@ -17,6 +17,8 @@
 #ifndef LIBDS_ITER_H
 #define LIBDS_ITER_H
 
+#include <stdbool.h>
+
 /**
 * @brief Generic iterator object.
 */
