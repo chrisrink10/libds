@@ -268,7 +268,11 @@ bool dsiter_dslist_next(DSIter *iter, bool advance) {
         return false;
     }
 
-    if (advance || iter->cur == DSITER_NEW_ITERATOR) {
+    if ((!advance) && (iter->cur == DSITER_NEW_ITERATOR)) {
+        return (iter->target.list->len > 0);
+    }
+
+    if (advance) {
         iter->cur++;
         iter->cnt++;
     }

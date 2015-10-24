@@ -398,7 +398,7 @@ void list_test_iter(void) {
         count_iters++;
     }
 
-    CU_ASSERT(count_iters != num_iters);
+    CU_ASSERT(count_iters == num_iters);
     CU_ASSERT(dsiter_has_next(iter) == false);
     dsiter_destroy(iter);
     dslist_destroy(list);
