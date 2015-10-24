@@ -15,12 +15,12 @@
 #include "listpriv.h"
 
 enum IterType {
-    ITER_LIST,
+    ITER_ARRAY,
     ITER_DICT,
 };
 
 union IterTarget {
-    DSList *list;
+    DSArray *array;
     DSDict *dict;
 };
 

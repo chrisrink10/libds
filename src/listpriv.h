@@ -1,7 +1,7 @@
 /*****************************************************************************
  * libds :: listpriv.c
  *
- * Private header for the list data structure.
+ * Private header for the array data structure.
  *
  * Author:  Chris Rink <chrisrink10@gmail.com>
  *
@@ -13,6 +13,6 @@
 
 #include "libds/list.h"
 
-bool dsiter_dslist_next(DSIter *iter, bool advance);
+bool dsiter_dsarray_next(DSIter *iter, bool advance);
 
 #endif //LIBDS_LISTPRIV_H

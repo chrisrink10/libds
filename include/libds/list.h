@@ -1,7 +1,7 @@
 /**
  * @file list.h
  *
- * @brief Automatically resizing list/stack implementation.
+ * @brief Automatically resizing array/stack implementation.
  *
  * @author Chris Rink <chrisrink10@gmail.com>
  *
@@ -14,245 +14,245 @@
 #include "libds/iter.h"
 
 /**
-* @brief Auto-resizing generic list object.
+* @brief Auto-resizing generic array object.
 *
-* DSList objects are typically resized by @c DSLIST_CAPACITY_FACTOR
+* DSArray objects are typically resized by @c DSARRAY_CAPACITY_FACTOR
 * whenever a resize is necessary using the API.
 */
-typedef struct DSList DSList;
+typedef struct DSArray DSArray;
 
 /**
-* @brief The default capacity of a @c DSList.
+* @brief The default capacity of a @c DSArray.
 */
-static const int DSLIST_DEFAULT_CAPACITY = 10;
+static const int DSARRAY_DEFAULT_CAPACITY = 10;
 
 /**
-* @brief The factor by which a @c DSList is resized when needed
+* @brief The factor by which a @c DSArray is resized when needed
 */
-static const int DSLIST_CAPACITY_FACTOR = 2;
+static const int DSARRAY_CAPACITY_FACTOR = 2;
 
 /**
-* @brief Comparator function used in a @c DSList to sort and search.
+* @brief Comparator function used in a @c DSArray to sort and search.
 */
-typedef int (*dslist_compare_fn)(const void*, const void*);
+typedef int (*dsarray_compare_fn)(const void*, const void*);
 
 /**
-* @brief Free function used in a @c DSList free remaining elements when
-* the list is destroyed.
+* @brief Free function used in a @c DSArray free remaining elements when
+* the array is destroyed.
 */
-typedef void (*dslist_free_fn)(void*);
+typedef void (*dsarray_free_fn)(void*);
 
 /**
-* @brief Errors returned from @c DSList functions returning indices.
+* @brief Errors returned from @c DSArray functions returning indices.
 */
-static const int DSLIST_NOT_FOUND = -1;
-static const int DSLIST_NULL_POINTER = -2;
-static const int DSLIST_NO_CMP_FUNC = -3;
+static const int DSARRAY_NOT_FOUND = -1;
+static const int DSARRAY_NULL_POINTER = -2;
+static const int DSARRAY_NO_CMP_FUNC = -3;
 
 /**
-* @brief Create a new @c DSList List object with @c DSLIST_DEFAULT_CAPACITY
+* @brief Create a new @c DSArray object with @c DSARRAY_DEFAULT_CAPACITY
 * slots and the given comparator and free function.
 *
-* Neither function pointer is required to create a new list. If the caller
-* does not specify a @c dslist_compare_fn, then @c dslist_sort will become
-* a no-op. Likewise, if no @c dslist_free_fn is specified, then the list
-* will not free list elements when it is destroyed.
+* Neither function pointer is required to create a new array. If the caller
+* does not specify a @c dsarray_compare_fn, then @c dsarray_sort will become
+* a no-op. Likewise, if no @c dsarray_free_fn is specified, then the array
+* will not free array elements when it is destroyed.
 *
-* @param cmpfn a function which can compare two list elements
-* @param freefn a function which can free a list element
-* @returns a new @c DSList object or @c NULL if memory could not be
+* @param cmpfn a function which can compare two array elements
+* @param freefn a function which can free a array element
+* @returns a new @c DSArray object or @c NULL if memory could not be
 *          allocated
 */
-DSList* dslist_new(dslist_compare_fn cmpfn, dslist_free_fn freefn);
+DSArray* dsarray_new(dsarray_compare_fn cmpfn, dsarray_free_fn freefn);
 
 /**
-* @brief Create a new @c DSList List object with @c cap slots and the given
+* @brief Create a new @c DSArray object with @c cap slots and the given
 * comparator and free function.
 *
-* Neither function pointer is required to create a new list. If the caller
-* does not specify a @c dslist_compare_fn, then @c dslist_sort will become
-* a no-op. Likewise, if no @c dslist_free_fn is specified, then the list
-* will not free list elements when it is destroyed.
+* Neither function pointer is required to create a new array. If the caller
+* does not specify a @c dsarray_compare_fn, then @c dsarray_sort will become
+* a no-op. Likewise, if no @c dsarray_free_fn is specified, then the array
+* will not free array elements when it is destroyed.
 *
-* @param cap the starting capacity of the @c DSList
-* @param cmpfn a function which can compare two list elements
-* @param freefn a function which can free a list element
-* @returns a new @c DSList object or @c NULL if memory could not be
+* @param cap the starting capacity of the @c DSArray
+* @param cmpfn a function which can compare two array elements
+* @param freefn a function which can free a array element
+* @returns a new @c DSArray object or @c NULL if memory could not be
 *          allocated
 */
-DSList* dslist_new_cap(size_t cap, dslist_compare_fn cmpfn, dslist_free_fn freefn);
+DSArray* dsarray_new_cap(size_t cap, dsarray_compare_fn cmpfn, dsarray_free_fn freefn);
 
 /**
-* @brief Destroy a @c DSList object.
+* @brief Destroy a @c DSArray object.
 *
-* If a @c dslist_free_fn was specified when the list was created, it will
-* be called on each element in the list. Otherwise, only the list object
+* If a @c dsarray_free_fn was specified when the array was created, it will
+* be called on each element in the array. Otherwise, only the array object
 * itself and any references it owned will be destroyed.
 */
-void dslist_destroy(DSList *list);
+void dsarray_destroy(DSArray *array);
 
 /**
-* @brief Return the length of a @c DSList.
+* @brief Return the length of a @c DSArray.
 *
-* @param list a @c DSList object
-* @returns the number of elements in @c list
+* @param array a @c DSArray object
+* @returns the number of elements in @c array
 */
-size_t dslist_len(DSList *list);
+size_t dsarray_len(DSArray *array);
 
 /**
-* @brief Return the capacity of a @c DSList .
+* @brief Return the capacity of a @c DSArray .
 *
-* @param list a @c DSList object
-* @returns the number of elements that @c list can hold
+* @param array a @c DSArray object
+* @returns the number of elements that @c array can hold
 */
-size_t dslist_cap(DSList *list);
+size_t dsarray_cap(DSArray *array);
 
 /**
 * @brief Return the object stored at the given index.
 *
-* @param list a @c DSList object
+* @param array a @c DSArray object
 * @param index numeric index of the element to get
 * @returns @c NULL if the index has no element or is invalid; the
 *          object otherwise
 */
-void* dslist_get(DSList *list, int index);
+void* dsarray_get(DSArray *array, int index);
 
 /**
-* @brief Perform the given function on each object in the list.
+* @brief Perform the given function on each object in the array.
 *
-* The given function is called for every list element including @c NULL
+* The given function is called for every array element including @c NULL
 * elements. The given function should be able to operate on @c NULL
 * pointers.
 *
-* @param list a @c DSList object
+* @param array a @c DSArray object
 * @param func a function taking a void pointer which returns nothing
 */
-void dslist_foreach(DSList *list, void (*func)(void*));
+void dsarray_foreach(DSArray *array, void (*func)(void*));
 
 /**
-* @brief Append an element to the end of the list.
+* @brief Append an element to the end of the array.
 *
-* @param list a @c DSList object
-* @param elem the element to add to the list
-* @returns @c false if the element is @c NULL or the list cannot be resized;
+* @param array a @c DSArray object
+* @param elem the element to add to the array
+* @returns @c false if the element is @c NULL or the array cannot be resized;
 *          @c true otherwise
 */
-bool dslist_append(DSList *list, void *elem);
+bool dsarray_append(DSArray *array, void *elem);
 
 /**
-* @brief Extend the first @c DSList with the elements of the second.
+* @brief Extend the first @c DSArray with the elements of the second.
 *
 * This function sets each element pointer in @c other to @c NULL
 * and sets the length to 0, to avoid any attempts to double-free
 * memory, which would result in undefined behavior.
 *
-* Callers will still be required to destroy the @c other list object,
+* Callers will still be required to destroy the @c other array object,
 * though it will no longer contain any references.
 *
-* @param list the destination @c DSList object
-* @param other the source @c DSList object
-* @returns @c false if @c list or @c other were @c NULL or if @c list could
+* @param array the destination @c DSArray object
+* @param other the source @c DSArray object
+* @returns @c false if @c array or @c other were @c NULL or if @c array could
 *          not be resized; @c true otherwise
 */
-bool dslist_extend(DSList *list, DSList *other);
+bool dsarray_extend(DSArray *array, DSArray *other);
 
 /**
 * @brief Insert the given element at the specified index.
 *
 * Elements may only be inserted between index 0 and index (length - 1).
 *
-* @param list a @c DSList object
-* @param elem the element to insert into @c list
-* @param index the index to insert @c elem into @c list
+* @param array a @c DSArray object
+* @param elem the element to insert into @c array
+* @param index the index to insert @c elem into @c array
 * @returns @c false if @c elem is @c NULL or @c index is invalid or the
-*          list could not be resized; @c true otherwise
+*          array could not be resized; @c true otherwise
 */
-bool dslist_insert(DSList *list, void *elem, int index);
+bool dsarray_insert(DSArray *array, void *elem, int index);
 
 /**
-* @brief Remove the first element in the list matching the given element
+* @brief Remove the first element in the array matching the given element
 * and free that element.
 *
 * To remove an element with this function, the caller would have had to
-* specify a comparator function when this list was created. The element
-* will not be freed when removed from the list by this function.
+* specify a comparator function when this array was created. The element
+* will not be freed when removed from the array by this function.
 *
-* @param list a @c DSList object
-* @param elem the element to remove from the list
+* @param array a @c DSArray object
+* @param elem the element to remove from the array
 * @returns a pointer to the element or @c NULL if the element cannot be
 *          found or no comparator function was specified
 */
-void* dslist_remove(DSList *list, void *elem);
+void* dsarray_remove(DSArray *array, void *elem);
 
 /**
 * @brief Remove the element at the given index and return it.
 *
-* The element will not be freed when removed from the list by this function.
+* The element will not be freed when removed from the array by this function.
 *
-* @param list a @c DSList object
+* @param array a @c DSArray object
 * @param index the index of the element to remove
 * @returns a pointer to the element or @c NULL if the element cannot be
 *          found or no comparator function was specified or the index was
 *          invalid
 */
-void* dslist_remove_index(DSList *list, int index);
+void* dsarray_remove_index(DSArray *array, int index);
 
 /**
-* @brief Pop the top element from the list.
+* @brief Pop the top element from the array.
 *
-* The element will not be freed when removed from the list by this function.
+* The element will not be freed when removed from the array by this function.
 *
-* @param list a @c DSList object
-* @returns a pointer to the top element or @c NULL if the list is empty
+* @param array a @c DSArray object
+* @returns a pointer to the top element or @c NULL if the array is empty
 */
-void* dslist_pop(DSList *list);
+void* dsarray_pop(DSArray *array);
 
 /**
-* @brief Clear the entire list, freeing elements as they are removed.
+* @brief Clear the entire array, freeing elements as they are removed.
 *
-* List elements are only freed if the free function was provided by the
-* caller when the list was created.
+* Array elements are only freed if the free function was provided by the
+* caller when the array was created.
 *
-* @param list a @c DSList object
+* @param array a @c DSArray object
 */
-void dslist_clear(DSList *list);
+void dsarray_clear(DSArray *array);
 
 /**
 * @brief Return the first index of the given element.
 *
 * To find an element with this function, the caller would have had to
-* specify a comparator function when this list was created.
+* specify a comparator function when this array was created.
 *
-* @param list a @c DSList object
-* @param elem the element to find in the list
-* @returns the index of the element or @c DSLIST_NOT_FOUND if the element
-*          is not found in the list
+* @param array a @c DSArray object
+* @param elem the element to find in the array
+* @returns the index of the element or @c DSARRAY_NOT_FOUND if the element
+*          is not found in the array
 */
-int dslist_index(DSList *list, void *elem);
+int dsarray_index(DSArray *array, void *elem);
 
 /**
-* @brief Sort the list in ascending order using the given comparator function.
+* @brief Sort the array in ascending order using the given comparator function.
 *
-* To sort the list, the caller would have had to specify a comparator
-* function when this list was created. The sort will be performed using the
+* To sort the array, the caller would have had to specify a comparator
+* function when this array was created. The sort will be performed using the
 * comparator and the C standard library function @c qsort.
 *
-* @param list a @c DSList object
+* @param array a @c DSArray object
 */
-void dslist_sort(DSList *list);
+void dsarray_sort(DSArray *array);
 
 /**
-* @brief Reverse the list in place.
+* @brief Reverse the array in place.
 *
-* @param list a @c DSList object
+* @param array a @c DSArray object
 */
-void dslist_reverse(DSList *list);
+void dsarray_reverse(DSArray *array);
 
 /**
-* @brief Create a new @c DSIter on this list.
+* @brief Create a new @c DSIter on this array.
 *
-* @param list a @c DSList object
+* @param array a @c DSArray object
 */
-DSIter* dslist_iter(DSList *list);
+DSIter* dsarray_iter(DSArray *array);
 
 #endif //LIBDS_LIST_H

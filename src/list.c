@@ -1,7 +1,7 @@
 /*****************************************************************************
  * libds :: list.c
  *
- * Dynamic list/stack data structure.
+ * Dynamic array/stack data structure.
  *
  * Author:  Chris Rink <chrisrink10@gmail.com>
  *
@@ -14,88 +14,88 @@
 #include "libds/list.h"
 #include "iterpriv.h"
 
-struct DSList {
+struct DSArray {
     void **data;
     size_t len;
     size_t cap;
-    dslist_compare_fn cmp;
-    dslist_free_fn free;
+    dsarray_compare_fn cmp;
+    dsarray_free_fn free;
 };
 
-static bool dslist_resize(DSList *list, size_t cap);
-static void dslist_free(DSList *list);
+static bool dsarray_resize(DSArray *array, size_t cap);
+static void dsarray_free(DSArray *array);
 
 /*
- * LIST PUBLIC FUNCTIONS
+ * ARRAY PUBLIC FUNCTIONS
  */
 
-DSList* dslist_new(dslist_compare_fn cmpfn, dslist_free_fn freefn) {
-    return dslist_new_cap(DSLIST_DEFAULT_CAPACITY, cmpfn, freefn);
+DSArray* dsarray_new(dsarray_compare_fn cmpfn, dsarray_free_fn freefn) {
+    return dsarray_new_cap(DSARRAY_DEFAULT_CAPACITY, cmpfn, freefn);
 }
 
-DSList* dslist_new_cap(size_t cap, dslist_compare_fn cmpfn, dslist_free_fn freefn) {
+DSArray* dsarray_new_cap(size_t cap, dsarray_compare_fn cmpfn, dsarray_free_fn freefn) {
     assert(cap > 0);
-    DSList *list = malloc(sizeof(DSList));
-    if (!list) {
+    DSArray *array = malloc(sizeof(DSArray));
+    if (!array) {
         return NULL;
     }
 
-    list->data = calloc(cap, sizeof(void*) * cap);
-    if (!list->data) {
-        free(list);
+    array->data = calloc(cap, sizeof(void*) * cap);
+    if (!array->data) {
+        free(array);
         return NULL;
     }
 
-    list->len = 0;
-    list->cap = cap;
-    list->cmp = cmpfn;
-    list->free = freefn;
-    return list;
+    array->len = 0;
+    array->cap = cap;
+    array->cmp = cmpfn;
+    array->free = freefn;
+    return array;
 }
 
-void dslist_destroy(DSList *list) {
-    if (!list) { return; }
-    dslist_free(list);
-    free(list->data);
-    free(list);
+void dsarray_destroy(DSArray *array) {
+    if (!array) { return; }
+    dsarray_free(array);
+    free(array->data);
+    free(array);
 }
 
-size_t dslist_len(DSList *list) {
-    assert(list);
-    return list->len;
+size_t dsarray_len(DSArray *array) {
+    assert(array);
+    return array->len;
 }
 
-size_t dslist_cap(DSList *list) {
-    assert(list);
-    return list->cap;
+size_t dsarray_cap(DSArray *array) {
+    assert(array);
+    return array->cap;
 }
 
-void* dslist_get(DSList *list, int index) {
-    if (!list) { return NULL; }
-    if (index < 0 || index > list->len) { return NULL; }
-    return list->data[index];
+void* dsarray_get(DSArray *array, int index) {
+    if (!array) { return NULL; }
+    if (index < 0 || index > array->len) { return NULL; }
+    return array->data[index];
 }
 
-void dslist_foreach(DSList *list, void (*func)(void*)) {
-    if ((!list) || (!func)) { return; }
+void dsarray_foreach(DSArray *array, void (*func)(void*)) {
+    if ((!array) || (!func)) { return; }
 
-    for (int i = 0; i < list->len; i++) {
-        func(list->data[i]);
+    for (int i = 0; i < array->len; i++) {
+        func(array->data[i]);
     }
 }
 
-bool dslist_append(DSList *list, void *elem) {
-    return (!list) ? (false) : dslist_insert(list, elem, (int)list->len);
+bool dsarray_append(DSArray *array, void *elem) {
+    return (!array) ? (false) : dsarray_insert(array, elem, (int)array->len);
 }
 
-bool dslist_extend(DSList *list, DSList *other) {
-    if ((!list) || (!other)) { return false; }
+bool dsarray_extend(DSArray *array, DSArray *other) {
+    if ((!array) || (!other)) { return false; }
     if (other->len == 0) { return true; }
 
     int len = (int)other->len;
     int i = 0;
     for (i = 0; i < len; i++) {
-        if (!dslist_append(list, dslist_get(other, i))) {
+        if (!dsarray_append(array, dsarray_get(other, i))) {
             other->len = other->len - i;
             return false;
         }
@@ -106,110 +106,110 @@ bool dslist_extend(DSList *list, DSList *other) {
     return true;
 }
 
-bool dslist_insert(DSList *list, void *elem, int index) {
-    if ((!list) || (!elem)) { return false; }
+bool dsarray_insert(DSArray *array, void *elem, int index) {
+    if ((!array) || (!elem)) { return false; }
 
-    if ((index < 0) || (index > (list->len))) {
+    if ((index < 0) || (index > (array->len))) {
         return false;
     }
 
-    if ((list->len + 1) > list->cap) {
-        if (!dslist_resize(list, list->cap * DSLIST_CAPACITY_FACTOR)) {
+    if ((array->len + 1) > array->cap) {
+        if (!dsarray_resize(array, array->cap * DSARRAY_CAPACITY_FACTOR)) {
             return false;
         }
     }
 
-    for (int i = (int)list->len; i > index; i--) {
-        list->data[i] = list->data[i-1];
+    for (int i = (int)array->len; i > index; i--) {
+        array->data[i] = array->data[i-1];
     }
 
-    list->data[index] = elem;
-    list->len++;
+    array->data[index] = elem;
+    array->len++;
     return true;
 }
 
-void* dslist_remove(DSList *list, void *elem) {
-    if ((!list) || (!elem)) { return NULL; }
+void* dsarray_remove(DSArray *array, void *elem) {
+    if ((!array) || (!elem)) { return NULL; }
 
-    int i = dslist_index(list, elem);
-    return dslist_remove_index(list, i);
+    int i = dsarray_index(array, elem);
+    return dsarray_remove_index(array, i);
 }
 
-void* dslist_remove_index(DSList *list, int index) {
-    if (!list) { return NULL; }
+void* dsarray_remove_index(DSArray *array, int index) {
+    if (!array) { return NULL; }
 
-    if ((index < 0) || (index >= list->len)) {
+    if ((index < 0) || (index >= array->len)) {
         return NULL;
     }
 
-    void* cache = list->data[index];
+    void* cache = array->data[index];
 
-    for (int i = index; i < list->len; i++) {
-        list->data[i] = list->data[i+1];
+    for (int i = index; i < array->len; i++) {
+        array->data[i] = array->data[i+1];
     }
 
-    list->data[list->len] = NULL;
-    list->len--;
+    array->data[array->len] = NULL;
+    array->len--;
     return cache;
 }
 
-void* dslist_pop(DSList *list) {
-    if (!list) { return NULL; }
-    return dslist_remove_index(list, (int)list->len-1);
+void* dsarray_pop(DSArray *array) {
+    if (!array) { return NULL; }
+    return dsarray_remove_index(array, (int)array->len-1);
 }
 
-void dslist_clear(DSList *list) {
-    if (!list) { return; }
-    dslist_free(list);
-    list->len = 0;
+void dsarray_clear(DSArray *array) {
+    if (!array) { return; }
+    dsarray_free(array);
+    array->len = 0;
 }
 
-int dslist_index(DSList *list, void *elem) {
-    if ((!list) || (!elem)) {
-        return DSLIST_NULL_POINTER;
+int dsarray_index(DSArray *array, void *elem) {
+    if ((!array) || (!elem)) {
+        return DSARRAY_NULL_POINTER;
     }
-    if (!list->cmp) {
-        return DSLIST_NO_CMP_FUNC;
+    if (!array->cmp) {
+        return DSARRAY_NO_CMP_FUNC;
     }
 
-    for(int i = 0; i < list->len; i++) {
-        if (list->cmp(&list->data[i], &elem) == 0) {
+    for(int i = 0; i < array->len; i++) {
+        if (array->cmp(&array->data[i], &elem) == 0) {
             return i;
         }
     }
 
-    return DSLIST_NOT_FOUND;
+    return DSARRAY_NOT_FOUND;
 }
 
-void dslist_sort(DSList *list) {
-    if ((!list) || (list->len == 0) || (!list->cmp)) {
+void dsarray_sort(DSArray *array) {
+    if ((!array) || (array->len == 0) || (!array->cmp)) {
         return;
     }
-    qsort(list->data, list->len, sizeof(void *), list->cmp);
+    qsort(array->data, array->len, sizeof(void *), array->cmp);
 }
 
-void dslist_reverse(DSList *list) {
-    if (!list) { return; }
+void dsarray_reverse(DSArray *array) {
+    if (!array) { return; }
 
     // Number of operations required, assuming integer truncation
-    int lim = ((int)list->len / 2);
+    int lim = ((int)array->len / 2);
 
     // Upper index, which will count down
-    int up = (int)list->len - 1;
+    int up = (int)array->len - 1;
 
     // Swap i index with up index as they both tick towards the middle
     for (int i = 0; i < lim; i++) {
-        void *cache = list->data[i];
-        list->data[i] = list->data[up];
-        list->data[up] = cache;
+        void *cache = array->data[i];
+        array->data[i] = array->data[up];
+        array->data[up] = cache;
         up--;
     }
 }
 
-DSIter* dslist_iter(DSList *list) {
-    if (!list) { return NULL; }
+DSIter* dsarray_iter(DSArray *array) {
+    if (!array) { return NULL; }
 
-    DSIter *iter = dsiter_priv_new(ITER_LIST, list);
+    DSIter *iter = dsiter_priv_new(ITER_ARRAY, array);
     if (!iter) {
         return NULL;
     }
@@ -221,47 +221,47 @@ DSIter* dslist_iter(DSList *list) {
  * PRIVATE FUNCTIONS
  */
 
-// Resize a glist upwards
-static bool dslist_resize(DSList *list, size_t cap) {
-    assert(list);
+// Resize a garray upwards
+static bool dsarray_resize(DSArray *array, size_t cap) {
+    assert(array);
 
-    if ((cap < 1) || (list->cap >= cap)) {
+    if ((cap < 1) || (array->cap >= cap)) {
         return false;
     }
 
-    void **cache = list->data;
-    list->data = malloc(sizeof(void*) * cap);
-    if (!list->data) {
-        list->data = cache;
+    void **cache = array->data;
+    array->data = malloc(sizeof(void*) * cap);
+    if (!array->data) {
+        array->data = cache;
         return false;
     }
 
-    for (int i = 0; i < list->len; i++) {
-        list->data[i] = cache[i];
+    for (int i = 0; i < array->len; i++) {
+        array->data[i] = cache[i];
     }
 
     free(cache);
-    list->cap = cap;
+    array->cap = cap;
     return true;
 }
 
-// Free all of the value pointers in a DSList if a free function was given.
-static void dslist_free(DSList *list) {
-    assert(list);
-    bool has_free = (list->free) ? true : false;
+// Free all of the value pointers in a DSArray if a free function was given.
+static void dsarray_free(DSArray *array) {
+    assert(array);
+    bool has_free = (array->free) ? true : false;
 
-    for (int i = 0; i < list->len; i++) {
+    for (int i = 0; i < array->len; i++) {
         if (has_free) {
-            list->free(list->data[i]);
+            array->free(array->data[i]);
         }
-        list->data[i] = NULL;
+        array->data[i] = NULL;
     }
 }
 
-// Iterate on the next list entry.
-bool dsiter_dslist_next(DSIter *iter, bool advance) {
+// Iterate on the next array entry.
+bool dsiter_dsarray_next(DSIter *iter, bool advance) {
     assert(iter);
-    assert(iter->type == ITER_LIST);
+    assert(iter->type == ITER_ARRAY);
     void *data = NULL;
 
     if (iter->cur == DSITER_NO_MORE_ELEMENTS) {
@@ -269,14 +269,14 @@ bool dsiter_dslist_next(DSIter *iter, bool advance) {
     }
 
     if ((!advance) && (iter->cur == DSITER_NEW_ITERATOR)) {
-        return (iter->target.list->len > 0);
+        return (iter->target.array->len > 0);
     }
 
     if (advance) {
         iter->cur++;
         iter->cnt++;
     }
-    data = dslist_get(iter->target.list, iter->cur);
+    data = dsarray_get(iter->target.array, iter->cur);
     if (data) {
         return true;
     }

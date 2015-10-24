@@ -58,27 +58,27 @@ bool setup_dict_tests(void)  {
     return true;
 }
 
-bool setup_list_tests(void)  {
+bool setup_array_tests(void)  {
     /* add a suite to the registry */
-    CU_pSuite pSuite = CU_add_suite_with_setup_and_teardown("List Suite", NULL, NULL, list_test_setup, list_test_teardown);
+    CU_pSuite pSuite = CU_add_suite_with_setup_and_teardown("Array Suite", NULL, NULL, array_test_setup, array_test_teardown);
     if (pSuite == NULL) {
         return false;
     }
 
     /* add the tests to the suite */
-    if ((CU_add_test(pSuite, "List Append", list_test_append) == NULL) ||
-        (CU_add_test(pSuite, "List Insert", list_test_insert) == NULL) ||
-        (CU_add_test(pSuite, "List Extend", list_test_extend) == NULL) ||
-        (CU_add_test(pSuite, "List Get", list_test_get) == NULL) ||
-        (CU_add_test(pSuite, "List Remove", list_test_remove) == NULL) ||
-        (CU_add_test(pSuite, "List Remove by Index", list_test_remove_index) == NULL) ||
-        (CU_add_test(pSuite, "List Get Index", list_test_index) == NULL) ||
-        (CU_add_test(pSuite, "List Pop", list_test_pop) == NULL) ||
-        (CU_add_test(pSuite, "List Resize", list_test_resize) == NULL) ||
-        (CU_add_test(pSuite, "List Reverse", list_test_reverse) == NULL) ||
-        (CU_add_test(pSuite, "List Clear", list_test_clear) == NULL) ||
-        (CU_add_test(pSuite, "List Sort", list_test_sort) == NULL) ||
-        (CU_add_test(pSuite, "List Iterator", list_test_iter) == NULL)) {
+    if ((CU_add_test(pSuite, "Array Append", array_test_append) == NULL) ||
+        (CU_add_test(pSuite, "Array Insert", array_test_insert) == NULL) ||
+        (CU_add_test(pSuite, "Array Extend", array_test_extend) == NULL) ||
+        (CU_add_test(pSuite, "Array Get", array_test_get) == NULL) ||
+        (CU_add_test(pSuite, "Array Remove", array_test_remove) == NULL) ||
+        (CU_add_test(pSuite, "Array Remove by Index", array_test_remove_index) == NULL) ||
+        (CU_add_test(pSuite, "Array Get Index", array_test_index) == NULL) ||
+        (CU_add_test(pSuite, "Array Pop", array_test_pop) == NULL) ||
+        (CU_add_test(pSuite, "Array Resize", array_test_resize) == NULL) ||
+        (CU_add_test(pSuite, "Array Reverse", array_test_reverse) == NULL) ||
+        (CU_add_test(pSuite, "Array Clear", array_test_clear) == NULL) ||
+        (CU_add_test(pSuite, "Array Sort", array_test_sort) == NULL) ||
+        (CU_add_test(pSuite, "Array Iterator", array_test_iter) == NULL)) {
         return false;
     }
 
@@ -94,7 +94,7 @@ int main(int argc, const char* argv[]) {
     /* Add test suites to the registry */
     if ((!setup_buffer_tests()) ||
         (!setup_dict_tests()) ||
-        (!setup_list_tests()))
+        (!setup_array_tests()))
     {
         goto cleanup_main;
     }

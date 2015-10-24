@@ -23,8 +23,8 @@ bool dsiter_next(DSIter *iter) {
     switch (iter->type) {
         case ITER_DICT:
             return dsiter_dsdict_next(iter, true);
-        case ITER_LIST: {
-            return dsiter_dslist_next(iter, true);
+        case ITER_ARRAY: {
+            return dsiter_dsarray_next(iter, true);
         }
     }
 
@@ -37,8 +37,8 @@ bool dsiter_has_next(DSIter *iter) {
     switch (iter->type) {
         case ITER_DICT:
             return dsiter_dsdict_next(iter, false);
-        case ITER_LIST:
-            return dsiter_dslist_next(iter, false);
+        case ITER_ARRAY:
+            return dsiter_dsarray_next(iter, false);
     }
 
     return false;
@@ -50,7 +50,7 @@ void* dsiter_key(DSIter *iter) {
     switch(iter->type) {
         case ITER_DICT:
             return (iter->node) ? (iter->node->key) : NULL;
-        case ITER_LIST:
+        case ITER_ARRAY:
             return NULL;
     }
 
@@ -63,8 +63,8 @@ void* dsiter_value(DSIter *iter) {
     switch(iter->type) {
         case ITER_DICT:
             return (iter->node) ? (iter->node->data) : NULL;
-        case ITER_LIST:
-            return dslist_get(iter->target.list, iter->cur);
+        case ITER_ARRAY:
+            return dsarray_get(iter->target.array, iter->cur);
     }
 
     return NULL;
@@ -90,8 +90,8 @@ void dsiter_destroy(DSIter *iter) {
         case ITER_DICT:
             iter->target.dict = NULL;
             break;
-        case ITER_LIST:
-            iter->target.list = NULL;
+        case ITER_ARRAY:
+            iter->target.array = NULL;
             break;
     }
 
@@ -118,8 +118,8 @@ DSIter* dsiter_priv_new(enum IterType type, void *target) {
         case ITER_DICT:
             iter->target.dict = target;
             break;
-        case ITER_LIST:
-            iter->target.list = target;
+        case ITER_ARRAY:
+            iter->target.array = target;
             break;
         default:
             dsiter_destroy(iter);
