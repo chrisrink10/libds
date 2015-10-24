@@ -75,6 +75,14 @@ int dsiter_index(DSIter *iter) {
     return iter->cnt;
 }
 
+void dsiter_reset(DSIter *iter) {
+    if (!iter) { return; }
+
+    iter->cnt = DSITER_NEW_ITERATOR;
+    iter->cur = DSITER_NEW_ITERATOR;
+    iter->node = NULL;
+}
+
 void dsiter_destroy(DSIter *iter) {
     if (!iter) { return; }
 

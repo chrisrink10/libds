@@ -85,6 +85,13 @@ void* dsiter_value(DSIter *iter);
 int dsiter_index(DSIter *iter);
 
 /**
+* @brief Reset a @c DSIter object to a new state.
+*
+* @param iter a @c DSIter object
+*/
+void dsiter_reset(DSIter *iter);
+
+/**
 * @brief Destroy an iterator.
 *
 * @param iter a @c DSIter object
