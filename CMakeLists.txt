@@ -75,5 +75,5 @@ endif(LIB_CUNIT)
 # Install the library header files
 if (NOT DEBUG)
     install(FILES ${LIBRARY_HEADER_FILES}
-            DESTINATION "/usr/include/libds")
+            DESTINATION "/usr/local/include/libds")
 endif(NOT DEBUG)
