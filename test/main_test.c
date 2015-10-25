@@ -10,9 +10,10 @@
 
 #include <stdbool.h>
 #include "CUnit/Basic.h"
+#include "array_test.h"
 #include "buffer_test.h"
 #include "dict_test.h"
-#include "array_test.h"
+#include "list_test.h"
 
 bool setup_buffer_tests(void) {
     /* add a suite to the registry */
@@ -85,6 +86,32 @@ bool setup_array_tests(void)  {
     return true;
 }
 
+bool setup_list_test(void) {
+    /* add a suite to the registry */
+    CU_pSuite pSuite = CU_add_suite_with_setup_and_teardown("List Suite", NULL, NULL, list_test_setup, list_test_teardown);
+    if (pSuite == NULL) {
+        return false;
+    }
+
+    /* add the tests to the suite */
+    if ((CU_add_test(pSuite, "List Append", list_test_append) == NULL) ||
+        (CU_add_test(pSuite, "List Insert", list_test_insert) == NULL) ||
+        (CU_add_test(pSuite, "List Extend", list_test_extend) == NULL) ||
+        (CU_add_test(pSuite, "List Get", list_test_get) == NULL) ||
+        (CU_add_test(pSuite, "List Remove", list_test_remove) == NULL) ||
+        (CU_add_test(pSuite, "List Remove by Index", list_test_remove_index) == NULL) ||
+        (CU_add_test(pSuite, "List Get Index", list_test_index) == NULL) ||
+        (CU_add_test(pSuite, "List Pop", list_test_pop) == NULL) ||
+        (CU_add_test(pSuite, "List Reverse", list_test_reverse) == NULL) ||
+        (CU_add_test(pSuite, "List Clear", list_test_clear) == NULL) ||
+        (CU_add_test(pSuite, "List Enqueue/Dequeue", list_test_queue) == NULL) ||
+        (CU_add_test(pSuite, "List Iterator", list_test_iter) == NULL)) {
+        return false;
+    }
+
+    return true;
+}
+
 int main(int argc, const char* argv[]) {
     /* Initialize the CUnit test registry */
     if (CU_initialize_registry() != CUE_SUCCESS) {
@@ -92,9 +119,10 @@ int main(int argc, const char* argv[]) {
     }
 
     /* Add test suites to the registry */
-    if ((!setup_buffer_tests()) ||
+    if ((!setup_array_tests()) ||
+        (!setup_buffer_tests()) ||
         (!setup_dict_tests()) ||
-        (!setup_array_tests()))
+        (!setup_list_test()))
     {
         goto cleanup_main;
     }

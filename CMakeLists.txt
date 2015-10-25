@@ -24,12 +24,14 @@ set(LIBRARY_HEADER_FILES include/libds/array.h
                          include/libds/buffer.h
                          include/libds/dict.h
                          include/libds/hash.h
-                         include/libds/iter.h)
+                         include/libds/iter.h
+                         include/libds/list.h)
 set(LIBRARY_SOURCE_FILES src/array.c
                          src/buffer.c
                          src/dict.c
                          src/hash.c
-                         src/iter.c)
+                         src/iter.c
+                         src/list.c)
 add_library(libds ${LIBRARY_SOURCE_FILES})
 
 # Build the Doxygen docs
@@ -62,7 +64,8 @@ if (LIB_CUNIT)
     set(TEST_SOURCE_FILES test/array_test.c
                           test/main_test.c
                           test/buffer_test.c
-                          test/dict_test.c)
+                          test/dict_test.c
+                          test/list_test.c)
     add_executable(libds_test ${TEST_SOURCE_FILES})
     target_link_libraries(libds_test libds)
     target_link_libraries(libds_test ${LIB_CUNIT})
