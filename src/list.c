@@ -12,12 +12,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "libds/list.h"
-
-struct node {
-    void *data;
-    struct node *next;
-    struct node *prev;
-};
+#include "listpriv.h"
+#include "iterpriv.h"
 
 struct DSList {
     struct node *head;
@@ -292,6 +288,17 @@ void dslist_reverse(DSList *list) {
     list->foot = temp;
 }
 
+DSIter *dslist_iter(DSList *list) {
+    if (!list) { return NULL; }
+
+    DSIter *iter = dsiter_priv_new(ITER_LIST, list);
+    if (!iter) {
+        return NULL;
+    }
+
+    return iter;
+}
+
 /*
  * LIST PRIVATE FUNCTIONS
  */
@@ -327,4 +334,39 @@ static void *remove_node(DSList *list, struct node *cur) {
     void *data = cur->data;
     free(cur);
     return data;
+}
+
+// Iterate on the next list entry
+bool dsiter_dslist_next(DSIter *iter, bool advance) {
+    assert(iter);
+    assert(iter->type == ITER_LIST);
+
+    if (iter->cur == DSITER_NO_MORE_ELEMENTS) {
+        return false;
+    } else if (iter->cur == DSITER_NEW_ITERATOR) {
+        if (!advance) {
+            return (iter->target.list->len > 0);
+        }
+
+        iter->node.list = iter->target.list->head;
+        iter->cur++;
+        iter->cnt++;
+    } else {
+        if (advance) {
+            iter->cur++;
+            iter->cnt++;
+            iter->node.list = (iter->node.list) ? (iter->node.list->next) : NULL;
+        }
+    }
+
+    void *data = (iter->node.list) ? (iter->node.list->data) : NULL;
+    if (data) {
+        return true;
+    }
+
+    if ((advance) && (!iter->node.list)) {
+        iter->cur = DSITER_NO_MORE_ELEMENTS;
+        iter->cnt = DSITER_NO_MORE_ELEMENTS;
+    }
+    return false;
 }

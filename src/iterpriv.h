@@ -11,17 +11,25 @@
 #ifndef LIBDS_ITERPRIV_H
 #define LIBDS_ITERPRIV_H
 
-#include "dictpriv.h"
 #include "arraypriv.h"
+#include "dictpriv.h"
+#include "listpriv.h"
 
 enum IterType {
     ITER_ARRAY,
     ITER_DICT,
+    ITER_LIST,
 };
 
 union IterTarget {
     DSArray *array;
     DSDict *dict;
+    DSList *list;
+};
+
+union IterNode {
+    struct bucket *dict;
+    struct node *list;
 };
 
 struct DSIter {
@@ -29,7 +37,7 @@ struct DSIter {
     union IterTarget target;
     int cur;
     int cnt;
-    struct bucket *node;
+    union IterNode node;
 };
 
 DSIter* dsiter_priv_new(enum IterType type, void *target);

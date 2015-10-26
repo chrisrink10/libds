@@ -374,7 +374,7 @@ bool dsiter_dsdict_next(DSIter *iter, bool advance) {
         for (int i = 0; i < dict->cap; i++) {
             if (dict->vals[i]) {
                 if (advance) {
-                    iter->node = dict->vals[i];
+                    iter->node.dict = dict->vals[i];
                     iter->cur = i;
                 }
                 return true;
@@ -390,9 +390,9 @@ bool dsiter_dsdict_next(DSIter *iter, bool advance) {
     }
 
     // If there is a next node, set our next pointer to that
-    if (iter->node->next) {
+    if (iter->node.dict->next) {
         if (advance) {
-            iter->node = iter->node->next;
+            iter->node.dict = iter->node.dict->next;
             iter->cnt++;
         }
         return true;
@@ -405,7 +405,7 @@ bool dsiter_dsdict_next(DSIter *iter, bool advance) {
             if (advance) {
                 iter->cur = i;
                 iter->cnt++;
-                iter->node = dict->vals[i];
+                iter->node.dict = dict->vals[i];
             }
             return true;
         }
@@ -415,7 +415,7 @@ bool dsiter_dsdict_next(DSIter *iter, bool advance) {
     if (advance) {
         iter->cur = DSITER_NO_MORE_ELEMENTS;
         iter->cnt = DSITER_NO_MORE_ELEMENTS;
-        iter->node = NULL;
+        iter->node.dict = NULL;
     }
     return false;
 }

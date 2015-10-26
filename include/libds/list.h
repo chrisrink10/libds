@@ -217,4 +217,13 @@ int dslist_index(DSList *list, void *elem);
 */
 void dslist_reverse(DSList *list);
 
+/**
+* @brief Create a new iterator for the given list.
+*
+* @param list a @c DSList object
+* @returns NULL if no list was provided or memory could not be allocated;
+*          a new @c DSIter otherwise
+*/
+DSIter *dslist_iter(DSList *list);
+
 #endif //LIBDS_LIST_H
