@@ -8,8 +8,8 @@
  * @copyright 2015 Chris Rink. MIT Licensed.
  */
 
-#ifndef LIBDS_LIST_H
-#define LIBDS_LIST_H
+#ifndef LIBDS_ARRAY_H
+#define LIBDS_ARRAY_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -257,4 +257,4 @@ void dsarray_reverse(DSArray *array);
 */
 DSIter* dsarray_iter(DSArray *array);
 
-#endif //LIBDS_LIST_H
+#endif //LIBDS_ARRAY_H
