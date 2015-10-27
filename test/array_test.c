@@ -371,7 +371,8 @@ void array_test_clear(void) {
 
 void array_test_iter(void) {
     int num_iters = 0;
-    DSArray *array = dsarray_new(dsbuf_compare, (dsarray_free_fn) dsbuf_destroy);
+    DSArray *array = dsarray_new((dsarray_compare_fn) dsbuf_compare,
+                                 (dsarray_free_fn) dsbuf_destroy);
     CU_ASSERT_FATAL(array != NULL);
 
     for (int i = 0; i < 6; i++) {

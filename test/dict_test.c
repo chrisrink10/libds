@@ -23,7 +23,8 @@ static int dsdict_collision_place = 0;
 static unsigned int dict_test_hash(void *obj);
 
 void dict_test_setup(void) {
-    dict_test = dsdict_new(dsbuf_hash, dsbuf_compare,
+    dict_test = dsdict_new((dsdict_hash_fn) dsbuf_hash,
+                           (dsdict_compare_fn) dsbuf_compare,
                            (dsdict_free_fn) dsbuf_destroy,
                            (dsdict_free_fn) dsbuf_destroy);
     CU_ASSERT_FATAL(dict_test != NULL);
@@ -71,7 +72,8 @@ void dict_test_put(void) {
 }
 
 void dict_test_collision(void) {
-    DSDict *dict = dsdict_new(dict_test_hash, dsbuf_compare,
+    DSDict *dict = dsdict_new(dict_test_hash,
+                              (dsdict_compare_fn) dsbuf_compare,
                               (dsdict_free_fn) dsbuf_destroy,
                               (dsdict_free_fn) dsbuf_destroy);
 
@@ -233,7 +235,8 @@ void dict_test_resize(void) {
 
 void dict_test_iter(void) {
     int num_iters = 0;
-    DSDict *dict = dsdict_new(dsbuf_hash, dsbuf_compare,
+    DSDict *dict = dsdict_new((dsdict_hash_fn) dsbuf_hash,
+                              (dsdict_compare_fn) dsbuf_compare,
                               (dsdict_free_fn) dsbuf_destroy,
                               (dsdict_free_fn) dsbuf_destroy);
     CU_ASSERT_FATAL(dict != NULL);

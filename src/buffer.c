@@ -23,7 +23,6 @@ struct DSBuffer {
 };
 
 static bool dsbuf_resize(DSBuffer *str, size_t size);
-static int dsbuf_priv_compare(const char *const str, const char *const right);
 
 /*
  * BUFFER PUBLIC FUNCTIONS
@@ -226,54 +225,17 @@ char* dsbuf_to_char_array(DSBuffer *str) {
     return cpy;
 }
 
-unsigned int dsbuf_hash(void *str) {
+unsigned int dsbuf_hash(DSBuffer *str) {
     if (!str) { return 0; }
-    return (unsigned int) hash_fnv1(((DSBuffer *)str)->str);
+    return (unsigned int) hash_fnv1(str->str);
 }
 
-int dsbuf_compare(void const *left, void const *right) {
+int dsbuf_compare(DSBuffer *left, DSBuffer *right) {
     if (!left) { return INT32_MIN; }
     if (!right) { return INT32_MAX; }
-    return dsbuf_priv_compare(((DSBuffer *)left)->str, ((DSBuffer *)right)->str);
-}
-
-int dsbuf_compare_utf8(void const *left, void const *right) {
-    int cmp = 0;
-    //TODO: Figure out a library to use to effectively do this
-/*
-    UErrorCode err;
-    UConverter *conv = ucnv_open("utf-8", &err);
-
-    gbuf *bufl = (gbuf*)left;
-    gbuf *bufr = (gbuf*)right;
-    if ((!bufl) || (!bufr)) {
-        cmp = (!bufl) ? INT32_MIN : INT32_MAX;
-        goto dsbuf_done;
-    }
-
-    size_t llen = 2 * bufl->len;
-    size_t rlen = 2 * bufr->len;
-    UChar *l = malloc(llen);
-    UChar *r = malloc(rlen);
-    if ((!l) || (!r)) {
-        cmp = (!l) ? INT32_MIN : INT32_MAX;
-        goto cleanup_dsbuf_compare;
-    }
-
-    ucnv_toUChars(conv, l, (int)llen, bufl->str, (int)bufl->len, &err);
-    if (err) { goto cleanup_dsbuf_compare; }
-    ucnv_toUChars(conv, r, (int)rlen, bufr->str, (int)bufr->len, &err);
-    if (err) { goto cleanup_dsbuf_compare; }
-
-    cmp = u_strCompare(l, (int)llen, r, (int)rlen, TRUE);
-
-cleanup_dsbuf_compare:
-    free(l);
-    free(r);
-dsbuf_done:
-    ucnv_close(conv);
-    */
-    return cmp;
+    if (left->len < right->len) { return -1; }
+    if (left->len > right->len) { return 1; }
+    return memcmp(left->str, right->str, left->len);
 }
 
 /*
@@ -299,9 +261,4 @@ static bool dsbuf_resize(DSBuffer *str, size_t size) {
     memcpy(str->str, cache, str->len);
     free(cache);
     return true;
-}
-
-// Return the string comparison for these two strings.
-static int dsbuf_priv_compare(const char *const str, const char *const right) {
-    return strcmp(str, right);
 }

@@ -234,21 +234,20 @@ char* dsbuf_to_char_array(DSBuffer *str);
 * @param str a @c DSBuffer object
 * @returns a hash of the internal buffer
 */
-unsigned int dsbuf_hash(void *str);
+unsigned int dsbuf_hash(DSBuffer *str);
 
 /**
-* @brief Compare two strings byte-wise.
+* @brief Compare two DSBuffers.
 *
-* This function is merely a light wrapper around @c strcmp to be used for
-* comparing two @c DSBuffer objects in a @c DSList.
-*
-* @returns @c INT32_MIN if left is @c NULL or @c INT32_MAX if right is @c NULL
+* @param left a @c DSBuffer object
+* @param right a @c DSBuffer object
+* @returns @c INT32_MIN if left is @c NULL or @c INT32_MAX if right is @c NULL;
+*          a value less than zero if @c left is lexicographically less than
+*          @c right or @c left is shorter than @c right; a value greater than
+*          zero if @c right is lexicographically less than @c left or
+*          @c right is shorter than @c left; 0 if the two strings are the
+*          same length and equal
 */
-int dsbuf_compare(void const* left, void const* right);
-
-/**
-* @brief Return the Lexicographical difference between left and right.
-*/
-int dsbuf_compare_utf8(void const* left, void const* right);
+int dsbuf_compare(DSBuffer *left, DSBuffer *right);
 
 #endif //LIBDS_BUFFER_H
