@@ -9,6 +9,7 @@
  *****************************************************************************/
 
 #include <stdint.h>
+#include "libds/hash.h"
 
 static const uint32_t HASH_LARSON_SEED = 23;
 static const uint32_t HASH_LARSON_FACTOR = 101;
