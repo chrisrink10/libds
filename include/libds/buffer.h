@@ -250,4 +250,27 @@ unsigned int dsbuf_hash(DSBuffer *str);
 */
 int dsbuf_compare(DSBuffer *left, DSBuffer *right);
 
+/*
+* @brief Check if the internal buffer contains a valid UTF-8 sequence.
+*
+* @param buf a @c DSBuffer object
+* @param l output the length in UTF-8 characters; use @c NULL to ignore
+* @returns @c true if the buffer is valid UTF-8; @c false otherwise
+*/
+bool dsbuf_utf8_validate(DSBuffer *buf, size_t *l);
+
+/*
+* @brief Return the length of the string in UTF-8 characters.
+*
+* This function will return before reaching the end of the string if it
+* encounters invalid UTF-8 characters. It may be more useful to use the
+* function @c dsbuf_utf8_validate and read the output size parameter if
+* it returns @c true since you will know that the string contains valid
+* UTF-8 and the output parameter represents the true UTF-8 length.
+*
+* @param buf a @c DSBuffer object
+* @returns 0 if @c buf is @c NULL; the length in UTF-8 characters otherwise
+*/
+size_t dsbuf_utf8_len(DSBuffer *buf);
+
 #endif //LIBDS_BUFFER_H
