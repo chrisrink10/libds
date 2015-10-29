@@ -113,7 +113,7 @@ size_t dsbuf_cap(DSBuffer *str);
 /**
 * @brief Append @c newc to @c str, resizing @c str if necessary.
 *
-* Callers will still be responsible for destroying both of @str and
+* Callers will still be responsible for destroying both of @c str and
 * @c newc. The append operation may fail if the buffer in @c str cannot
 * be resized. This operation does not guarantee to @c NUL terminate the
 * resultant filled buffer portion. However, the length of @c str will
