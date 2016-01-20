@@ -9,6 +9,7 @@
  */
 
 #include <assert.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -232,8 +233,8 @@ unsigned int dsbuf_hash(DSBuffer *str) {
 }
 
 int dsbuf_compare(DSBuffer *left, DSBuffer *right) {
-    if (!left) { return INT32_MIN; }
-    if (!right) { return INT32_MAX; }
+    if (!left) { return INT_MIN; }
+    if (!right) { return INT_MAX; }
     if (left->len < right->len) { return -1; }
     if (left->len > right->len) { return 1; }
     return memcmp(left->str, right->str, left->len);
