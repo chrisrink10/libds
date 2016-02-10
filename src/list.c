@@ -55,13 +55,13 @@ size_t dslist_len(DSList *list) {
     return list->len;
 }
 
-void* dslist_get(DSList *list, int index) {
-    if ((!list) || (index < 0) || (index >= list->len)) {
+void* dslist_get(DSList *list, size_t index) {
+    if ((!list) || (index >= list->len)) {
         return NULL;
     }
 
     struct node *cur = list->head;
-    int count = 0;
+    size_t count = 0;
     while (cur) {
         if (index == count) {
             return cur->data;
@@ -84,7 +84,7 @@ void dslist_foreach(DSList *list, void (*func)(void*)) {
 }
 
 bool dslist_append(DSList *list, void *elem) {
-    return (list) ? dslist_insert(list, elem, (int)(list->len)) : false;
+    return (list) ? dslist_insert(list, elem, list->len) : false;
 }
 
 bool dslist_extend(DSList *list, DSList *other){
@@ -113,9 +113,9 @@ bool dslist_extend(DSList *list, DSList *other){
     return true;
 }
 
-bool dslist_insert(DSList *list, void *elem, int index){
+bool dslist_insert(DSList *list, void *elem, size_t index){
     if ((!list) || (!elem)) { return false; }
-    if ((index < 0) || (index > list->len)) { return false; }
+    if (index > list->len) { return false; }
 
     // Insert at the front of the list (or starting a new list)
     if (index == 0) {
@@ -142,7 +142,7 @@ bool dslist_insert(DSList *list, void *elem, int index){
 
     // Insert an element in the middle of the list
     struct node *cur = list->head;
-    int count = 0;
+    size_t count = 0;
     while (cur) {
         if (count == index) {
             struct node *newnode = make_node(elem, cur, cur->prev);
@@ -173,12 +173,12 @@ void* dslist_remove(DSList *list, void *elem){
     return NULL;
 }
 
-void* dslist_remove_index(DSList *list, int index){
+void* dslist_remove_index(DSList *list, size_t index){
     if (!list) { return NULL; }
-    if ((index < 0) || (index >= list->len)) { return NULL; }
+    if (index >= list->len) { return NULL; }
 
     struct node *cur = list->head;
-    int count = 0;
+    size_t count = 0;
     while (cur) {
         if (index == count) {
             return remove_node(list, cur);
@@ -191,7 +191,7 @@ void* dslist_remove_index(DSList *list, int index){
 }
 
 bool dslist_enqueue(DSList *list, void *elem){
-    return (list) ? dslist_insert(list, elem, (int)(list->len)) : false;
+    return (list) ? dslist_insert(list, elem, list->len) : false;
 }
 
 void* dslist_dequeue(DSList *list){
@@ -341,9 +341,9 @@ bool dsiter_dslist_next(DSIter *iter, bool advance) {
     assert(iter);
     assert(iter->type == ITER_LIST);
 
-    if (iter->cur == DSITER_NO_MORE_ELEMENTS) {
+    if (DSITER_IS_FINISHED(iter)) {
         return false;
-    } else if (iter->cur == DSITER_NEW_ITERATOR) {
+    } else if (DSITER_IS_NEW_ITER(iter)) {
         if (!advance) {
             return (iter->target.list->len > 0);
         }
@@ -351,6 +351,7 @@ bool dsiter_dslist_next(DSIter *iter, bool advance) {
         iter->node.list = iter->target.list->head;
         iter->cur++;
         iter->cnt++;
+        iter->stat = DSITER_NORMAL;
     } else {
         if (advance) {
             iter->cur++;
@@ -365,8 +366,7 @@ bool dsiter_dslist_next(DSIter *iter, bool advance) {
     }
 
     if ((advance) && (!iter->node.list)) {
-        iter->cur = DSITER_NO_MORE_ELEMENTS;
-        iter->cnt = DSITER_NO_MORE_ELEMENTS;
+        iter->stat = DSITER_NO_MORE_ELEMENTS;
     }
     return false;
 }

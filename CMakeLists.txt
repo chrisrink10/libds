@@ -11,7 +11,8 @@ find_package(Doxygen)
 # Build flags
 set(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin/")
 set(LIBRARY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin/")
-set(CMAKE_C_FLAGS "-std=c99 -Wall -Werror")
+set(CMAKE_C_FLAGS "-std=c99 -Wall")
+set(LIB_C_FLAGS "${CMAKE_C_FLAGS} -Wextra -pedantic -Wsign-conversion -Wbad-function-cast -Wshorten-64-to-32")
 if (CMAKE_BUILD_TYPE MATCHES DEBUG)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0")
 else(CMAKE_BUILD_TYPE MATCHES DEBUG)
@@ -33,6 +34,7 @@ set(LIBRARY_SOURCE_FILES src/array.c
                          src/iter.c
                          src/list.c)
 add_library(libds ${LIBRARY_SOURCE_FILES})
+set_target_properties(libds PROPERTIES COMPILE_FLAGS ${LIB_C_FLAGS})
 
 # Build the Doxygen docs
 if(DOXYGEN_FOUND)

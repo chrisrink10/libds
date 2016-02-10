@@ -160,7 +160,7 @@ bool dsbuf_append_str(DSBuffer *str, const char *newstr);
 * @returns @c DSBUFFER_CHAR_NOT_FOUND if the position is greater than or
 *          equal to the length of the string or is 0; the character otherwise
 */
-int dsbuf_char_at(DSBuffer *str, int pos);
+int dsbuf_char_at(DSBuffer *str, size_t pos);
 
 /**
 * @brief Return a substring of the given buffer.
@@ -175,7 +175,7 @@ int dsbuf_char_at(DSBuffer *str, int pos);
 *          the length would exceed the length of the string or memory could
 *          not be allocated; the substring as a @c DSBuffer otherwise
 */
-DSBuffer* dsbuf_substr(DSBuffer *str, int start, size_t len);
+DSBuffer* dsbuf_substr(DSBuffer *str, size_t start, size_t len);
 
 /**
 * @brief Check if two @c DSBuffer objects are equal (but not the same).

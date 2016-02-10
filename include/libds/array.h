@@ -117,7 +117,7 @@ size_t dsarray_cap(DSArray *array);
 * @returns @c NULL if the index has no element or is invalid; the
 *          object otherwise
 */
-void* dsarray_get(DSArray *array, int index);
+void* dsarray_get(DSArray *array, size_t index);
 
 /**
 * @brief Perform the given function on each object in the array.
@@ -169,7 +169,7 @@ bool dsarray_extend(DSArray *array, DSArray *other);
 * @returns @c false if @c elem is @c NULL or @c index is invalid or the
 *          array could not be resized; @c true otherwise
 */
-bool dsarray_insert(DSArray *array, void *elem, int index);
+bool dsarray_insert(DSArray *array, void *elem, size_t index);
 
 /**
 * @brief Remove the first element in the array matching the given element
@@ -197,7 +197,7 @@ void* dsarray_remove(DSArray *array, void *elem);
 *          found or no comparator function was specified or the index was
 *          invalid
 */
-void* dsarray_remove_index(DSArray *array, int index);
+void* dsarray_remove_index(DSArray *array, size_t index);
 
 /**
 * @brief Pop the top element from the array.

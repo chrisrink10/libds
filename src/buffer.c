@@ -156,16 +156,16 @@ bool dsbuf_append_str(DSBuffer *str, const char *newstr) {
     return true;
 }
 
-int dsbuf_char_at(DSBuffer *str, int pos) {
-    if ((!str) || (pos >= str->len) || (pos < 0)) {
+int dsbuf_char_at(DSBuffer *str, size_t pos) {
+    if ((!str) || (pos >= str->len)) {
         return DSBUFFER_CHAR_NOT_FOUND;
     }
 
     return str->str[pos];
 }
 
-DSBuffer * dsbuf_substr(DSBuffer *str, int start, size_t len) {
-    if ((!str) || (start < 0) || (start > str->len) || (len > (str->len - start))) {
+DSBuffer * dsbuf_substr(DSBuffer *str, size_t start, size_t len) {
+    if ((!str) || (start > str->len) || (len > (str->len - start))) {
         return NULL;
     }
 

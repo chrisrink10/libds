@@ -79,7 +79,7 @@ size_t dslist_len(DSList *list);
 * @returns @c NULL if the index has no element or is invalid; the
 *          object otherwise
 */
-void* dslist_get(DSList *list, int index);
+void* dslist_get(DSList *list, size_t index);
 
 /**
 * @brief Perform the given function on each object in the list.
@@ -126,7 +126,7 @@ bool dslist_extend(DSList *list, DSList *other);
 * @returns @c false if @c elem is @c NULL or @c index is invalid or the
 *          node could not be created; @c true otherwise
 */
-bool dslist_insert(DSList *list, void *elem, int index);
+bool dslist_insert(DSList *list, void *elem, size_t index);
 
 /**
 * @brief Remove the first element in the list matching the given element
@@ -154,7 +154,7 @@ void* dslist_remove(DSList *list, void *elem);
 *          found or no comparator function was specified or the index was
 *          invalid
 */
-void* dslist_remove_index(DSList *list, int index);
+void* dslist_remove_index(DSList *list, size_t index);
 
 /**
 * @brief Enqueue the given element in the list.

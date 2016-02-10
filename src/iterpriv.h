@@ -35,11 +35,14 @@ union IterNode {
 struct DSIter {
     enum IterType type;
     union IterTarget target;
-    int cur;
-    int cnt;
+    size_t cur;
+    size_t cnt;
     union IterNode node;
+    int stat;
 };
 
 DSIter* dsiter_priv_new(enum IterType type, void *target);
+#define DSITER_IS_NEW_ITER(iter) (iter->stat == DSITER_NEW_ITERATOR)
+#define DSITER_IS_FINISHED(iter) (iter->stat == DSITER_NO_MORE_ELEMENTS)
 
 #endif //LIBDS_ITERPRIV_H

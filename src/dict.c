@@ -27,7 +27,7 @@ static const int DSDICT_DEFAULT_CAPACITY_FACTOR = 2;
  * - Powers of 2 given at: https://primes.utm.edu/lists/2small/0bit.html
  */
 #define POW2(n, k) ((1 << n) - k)
-static const uint32_t DSDICT_MOD_TABLE[] = {
+static const size_t DSDICT_MOD_TABLE[] = {
         1, 2, 3, 7, 13, 31, 61, 127, 251,                           /* Powers 0 through 8 */
         POW2(9, 3), POW2(10, 3), POW2(11, 9), POW2(12, 3),          /* Powers 9 through 12 */
         POW2(13, 1), POW2(14, 3), POW2(15, 19), POW2(16, 15),       /* Powers 13 through 16 */
@@ -50,7 +50,7 @@ struct DSDict {
 static bool dsdict_resize(DSDict *dict, size_t newcap);
 static bool transfer_vals(struct bucket **old, size_t oldcap, struct bucket **new, size_t newcap, dsdict_hash_fn hashfn);
 static void dsdict_free(DSDict *dict);
-static inline int compute_index(uint32_t hash, size_t cap);
+static inline size_t compute_index(uint32_t hash, size_t cap);
 
 /*
  * DICTIONARY PUBLIC FUNCTIONS
@@ -100,7 +100,7 @@ size_t dsdict_cap(DSDict *dict) {
 void dsdict_foreach(DSDict *dict, dsdict_foreach_fn func) {
     if ((!dict) || (!func)) { return; }
 
-    for (int i = 0; i < dict->cnt; i++) {
+    for (size_t i = 0; i < dict->cnt; i++) {
         if (!dict->vals[i]) { continue; }
         func(dict->vals[i]->key, dict->vals[i]->data);
 
@@ -116,7 +116,7 @@ void dsdict_put(DSDict *dict, void *key, void *val) {
     if ((!dict) || (!key)) { return; }
 
     unsigned int hash = dict->hash(key);
-    int place = compute_index(hash, dict->cap);
+    size_t place = compute_index(hash, dict->cap);
 
     // Get reference to place and see if there is data there;
     // if not, just set the data
@@ -178,7 +178,7 @@ void* dsdict_get(DSDict *dict, void *key) {
     if ((!dict) || (!key)) { return NULL; }
 
     unsigned int hash = dict->hash(key);
-    int place = compute_index(hash, dict->cap);
+    size_t place = compute_index(hash, dict->cap);
 
     struct bucket *cur = dict->vals[place];
     if (!cur) { return NULL; }
@@ -201,7 +201,7 @@ void* dsdict_del(DSDict *dict, void *key) {
     if ((!dict) || (!key)) { return NULL; }
 
     unsigned int hash = dict->hash(key);
-    int place = compute_index(hash, dict->cap);
+    size_t place = compute_index(hash, dict->cap);
 
     struct bucket *cur = dict->vals[place];
     if (!cur) { return NULL; }
@@ -274,9 +274,11 @@ static bool dsdict_resize(DSDict *dict, size_t newcap) {
 }
 
 // Given a hash value and a capacity, compute the place of the element in the array.
-static inline int compute_index(uint32_t hash, size_t cap) {
-    int power = (int)log2((int)cap);
-    int mod = ((power >= 0) && (power <= 31)) ? DSDICT_MOD_TABLE[power] : (int)cap;
+static inline size_t compute_index(uint32_t hash, size_t cap) {
+    double powerf = floor(log2((double)cap));
+    assert(powerf >= 0);
+    size_t power = (size_t)powerf;
+    size_t mod = (power <= 31) ? DSDICT_MOD_TABLE[power] : (size_t)cap;
     return (hash % mod);
 }
 
@@ -287,12 +289,12 @@ static bool transfer_vals(struct bucket **old, size_t oldcap, struct bucket **ne
     assert(hashfn);
 
     // Iterate on every element of the old bucket
-    for (int i = 0; i < oldcap; i++) {
+    for (size_t i = 0; i < oldcap; i++) {
         // Iterate on every hash table element in the old dictionary
         struct bucket *curold = old[i];
         while (curold) {
             // Compute the new placement for the current element
-            int place = compute_index(curold->hash, newcap);
+            size_t place = compute_index(curold->hash, newcap);
 
             // Get reference to place and see if there is data there;
             // if so, we need to traverse the linked list to get the last
@@ -327,7 +329,7 @@ static void dsdict_free(DSDict *dict) {
     bool free_keys = (dict->keyfree) ? true : false;
     bool free_vals = (dict->valfree) ? true : false;
 
-    for (int i = 0; i < dict->cap; i++) {
+    for (size_t i = 0; i < dict->cap; i++) {
         if (!dict->vals[i]) { continue; }
         if (free_keys) {
             dict->keyfree(dict->vals[i]->key);
@@ -361,21 +363,22 @@ bool dsiter_dsdict_next(DSIter *iter, bool advance) {
     assert(iter->type == ITER_DICT);
 
     // If we already know there are no more elements, quit
-    if (iter->cur == DSITER_NO_MORE_ELEMENTS) {
+    if (DSITER_IS_FINISHED(iter)) {
         return false;
     }
 
     // Get the initial node pointer
-    if (iter->cur == DSITER_NEW_ITERATOR) {
+    if (DSITER_IS_NEW_ITER(iter)) {
         DSDict *dict = iter->target.dict;
 
         // We do not need to traverse any linked lists
         // since this is explicitly the first node
-        for (int i = 0; i < dict->cap; i++) {
+        for (size_t i = 0; i < dict->cap; i++) {
             if (dict->vals[i]) {
                 if (advance) {
                     iter->node.dict = dict->vals[i];
                     iter->cur = i;
+                    iter->stat = DSITER_NORMAL;
                 }
                 return true;
             }
@@ -383,8 +386,7 @@ bool dsiter_dsdict_next(DSIter *iter, bool advance) {
 
         // No elements found in this dictionary
         if (advance) {
-            iter->cur = DSITER_NO_MORE_ELEMENTS;
-            iter->cnt = DSITER_NO_MORE_ELEMENTS;
+            iter->stat = DSITER_NO_MORE_ELEMENTS;
         }
         return false;
     }
@@ -400,7 +402,7 @@ bool dsiter_dsdict_next(DSIter *iter, bool advance) {
 
     // Otherwise, traverse through the array to find the next pointer
     DSDict *dict = iter->target.dict;
-    for (int i = (iter->cur + 1); i < dict->cap; i++) {
+    for (size_t i = (iter->cur + 1); i < dict->cap; i++) {
         if (dict->vals[i]) {
             if (advance) {
                 iter->cur = i;
@@ -413,8 +415,7 @@ bool dsiter_dsdict_next(DSIter *iter, bool advance) {
 
     // If we get here, there is no more data in the dict
     if (advance) {
-        iter->cur = DSITER_NO_MORE_ELEMENTS;
-        iter->cnt = DSITER_NO_MORE_ELEMENTS;
+        iter->stat = DSITER_NO_MORE_ELEMENTS;
         iter->node.dict = NULL;
     }
     return false;

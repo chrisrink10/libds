@@ -81,16 +81,17 @@ void* dsiter_value(DSIter *iter) {
     return NULL;
 }
 
-int dsiter_index(DSIter *iter) {
-    if (!iter) { return EOF; }
+size_t dsiter_index(DSIter *iter) {
+    if (!iter) { return SIZE_MAX; }
     return iter->cnt;
 }
 
 void dsiter_reset(DSIter *iter) {
     if (!iter) { return; }
 
-    iter->cnt = DSITER_NEW_ITERATOR;
-    iter->cur = DSITER_NEW_ITERATOR;
+    iter->cnt = 0;
+    iter->cur = 0;
+    iter->stat = DSITER_NEW_ITERATOR;
     set_node(iter, NULL);
 }
 
@@ -114,8 +115,9 @@ DSIter* dsiter_priv_new(enum IterType type, void *target) {
     }
 
     iter->type = type;
-    iter->cnt = DSITER_NEW_ITERATOR;
-    iter->cur = DSITER_NEW_ITERATOR;
+    iter->cnt = 0;
+    iter->cur = 0;
+    iter->stat = DSITER_NEW_ITERATOR;
     set_node(iter, NULL);
 
     if (!set_target(iter, target)) {

@@ -70,30 +70,30 @@ size_t dsarray_cap(DSArray *array) {
     return array->cap;
 }
 
-void* dsarray_get(DSArray *array, int index) {
+void* dsarray_get(DSArray *array, size_t index) {
     if (!array) { return NULL; }
-    if (index < 0 || index > array->len) { return NULL; }
+    if (index > array->len) { return NULL; }
     return array->data[index];
 }
 
 void dsarray_foreach(DSArray *array, void (*func)(void*)) {
     if ((!array) || (!func)) { return; }
 
-    for (int i = 0; i < array->len; i++) {
+    for (size_t i = 0; i < array->len; i++) {
         func(array->data[i]);
     }
 }
 
 bool dsarray_append(DSArray *array, void *elem) {
-    return (!array) ? (false) : dsarray_insert(array, elem, (int)array->len);
+    return (!array) ? (false) : dsarray_insert(array, elem, array->len);
 }
 
 bool dsarray_extend(DSArray *array, DSArray *other) {
     if ((!array) || (!other)) { return false; }
     if (other->len == 0) { return true; }
 
-    int len = (int)other->len;
-    int i = 0;
+    size_t len = other->len;
+    size_t i = 0;
     for (i = 0; i < len; i++) {
         if (!dsarray_append(array, dsarray_get(other, i))) {
             other->len = other->len - i;
@@ -106,10 +106,10 @@ bool dsarray_extend(DSArray *array, DSArray *other) {
     return true;
 }
 
-bool dsarray_insert(DSArray *array, void *elem, int index) {
+bool dsarray_insert(DSArray *array, void *elem, size_t index) {
     if ((!array) || (!elem)) { return false; }
 
-    if ((index < 0) || (index > (array->len))) {
+    if (index > (array->len)) {
         return false;
     }
 
@@ -119,7 +119,7 @@ bool dsarray_insert(DSArray *array, void *elem, int index) {
         }
     }
 
-    for (int i = (int)array->len; i > index; i--) {
+    for (size_t i = array->len; i > index; i--) {
         array->data[i] = array->data[i-1];
     }
 
@@ -132,19 +132,20 @@ void* dsarray_remove(DSArray *array, void *elem) {
     if ((!array) || (!elem)) { return NULL; }
 
     int i = dsarray_index(array, elem);
-    return dsarray_remove_index(array, i);
+    if (i < 0) { return NULL; }
+    return dsarray_remove_index(array, (size_t)i);
 }
 
-void* dsarray_remove_index(DSArray *array, int index) {
+void* dsarray_remove_index(DSArray *array, size_t index) {
     if (!array) { return NULL; }
 
-    if ((index < 0) || (index >= array->len)) {
+    if (index >= array->len) {
         return NULL;
     }
 
     void* cache = array->data[index];
 
-    for (int i = index; i < array->len; i++) {
+    for (size_t i = index; i < array->len; i++) {
         array->data[i] = array->data[i+1];
     }
 
@@ -155,7 +156,7 @@ void* dsarray_remove_index(DSArray *array, int index) {
 
 void* dsarray_pop(DSArray *array) {
     if (!array) { return NULL; }
-    return dsarray_remove_index(array, (int)array->len-1);
+    return dsarray_remove_index(array, array->len-1);
 }
 
 void dsarray_clear(DSArray *array) {
@@ -172,9 +173,9 @@ int dsarray_index(DSArray *array, void *elem) {
         return DSARRAY_NO_CMP_FUNC;
     }
 
-    for(int i = 0; i < array->len; i++) {
+    for(size_t i = 0; i < array->len; i++) {
         if (array->cmp(&array->data[i], &elem) == 0) {
-            return i;
+            return (int)i;
         }
     }
 
@@ -236,7 +237,7 @@ static bool dsarray_resize(DSArray *array, size_t cap) {
         return false;
     }
 
-    for (int i = 0; i < array->len; i++) {
+    for (size_t i = 0; i < array->len; i++) {
         array->data[i] = cache[i];
     }
 
@@ -250,7 +251,7 @@ static void dsarray_free(DSArray *array) {
     assert(array);
     bool has_free = (array->free) ? true : false;
 
-    for (int i = 0; i < array->len; i++) {
+    for (size_t i = 0; i < array->len; i++) {
         if (has_free) {
             array->free(array->data[i]);
         }
@@ -262,28 +263,31 @@ static void dsarray_free(DSArray *array) {
 bool dsiter_dsarray_next(DSIter *iter, bool advance) {
     assert(iter);
     assert(iter->type == ITER_ARRAY);
-    void *data = NULL;
 
-    if (iter->cur == DSITER_NO_MORE_ELEMENTS) {
+    if (DSITER_IS_FINISHED(iter)) {
+        return false;
+    } else if (DSITER_IS_NEW_ITER(iter)) {
+        if (!advance) {
+            return (iter->target.array->len > 0);
+        } else {
+            void *data = dsarray_get(iter->target.array, iter->cur);
+            iter->stat = (data) ? DSITER_NORMAL : DSITER_NO_MORE_ELEMENTS;
+            return (data != NULL);
+        }
+    } else {
+        if (advance) {
+            iter->cur++;
+            iter->cnt++;
+            iter->stat = DSITER_NORMAL;
+        }
+        void *data = dsarray_get(iter->target.array, iter->cur);
+        if (data) {
+            return true;
+        }
+
+        if (advance) {
+            iter->stat = DSITER_NO_MORE_ELEMENTS;
+        }
         return false;
     }
-
-    if ((!advance) && (iter->cur == DSITER_NEW_ITERATOR)) {
-        return (iter->target.array->len > 0);
-    }
-
-    if (advance) {
-        iter->cur++;
-        iter->cnt++;
-    }
-    data = dsarray_get(iter->target.array, iter->cur);
-    if (data) {
-        return true;
-    }
-
-    if (advance) {
-        iter->cur = DSITER_NO_MORE_ELEMENTS;
-        iter->cnt = DSITER_NO_MORE_ELEMENTS;
-    }
-    return false;
 }

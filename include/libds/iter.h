@@ -27,8 +27,9 @@ typedef struct DSIter DSIter;
 /**
 * @brief Constants used as sentinel values for @c DSIter objects.
 */
-static const int DSITER_NEW_ITERATOR = -1;
-static const int DSITER_NO_MORE_ELEMENTS = -2;
+static const int DSITER_NORMAL = 0;
+static const int DSITER_NEW_ITERATOR = (1 << 0);
+static const int DSITER_NO_MORE_ELEMENTS = (1 << 1);
 
 /**
 * @brief Advance the pointer to next element in the collection.
@@ -84,7 +85,7 @@ void* dsiter_value(DSIter *iter);
 * @param iter a @c DSIter object
 * @returns the enumerated index of the current iteration
 */
-int dsiter_index(DSIter *iter);
+size_t dsiter_index(DSIter *iter);
 
 /**
 * @brief Reset a @c DSIter object to a new state.
