@@ -26,12 +26,12 @@ typedef struct DSArray DSArray;
 /**
 * @brief The default capacity of a @c DSArray.
 */
-static const int DSARRAY_DEFAULT_CAPACITY = 10;
+static const size_t DSARRAY_DEFAULT_CAPACITY = 10;
 
 /**
 * @brief The factor by which a @c DSArray is resized when needed
 */
-static const int DSARRAY_CAPACITY_FACTOR = 2;
+static const size_t DSARRAY_CAPACITY_FACTOR = 2;
 
 /**
 * @brief Comparator function used in a @c DSArray to sort and search.

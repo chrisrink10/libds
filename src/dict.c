@@ -17,8 +17,8 @@
 #include "iterpriv.h"
 
 static const double DSDICT_DEFAULT_LOAD = 0.66;
-static const int DSDICT_DEFAULT_CAP = 64;
-static const int DSDICT_DEFAULT_CAPACITY_FACTOR = 2;
+static const size_t DSDICT_DEFAULT_CAP = 64;
+static const size_t DSDICT_DEFAULT_CAPACITY_FACTOR = 2;
 
 /*
  * Prime moduli for hash table capacity

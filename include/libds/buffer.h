@@ -25,12 +25,12 @@ typedef struct DSBuffer DSBuffer;
 /**
 * @brief The factor by which a @c DSBuffer is resized when needed
 */
-static const int DSBUFFER_CAPACITY_FACTOR = 2;
+static const size_t DSBUFFER_CAPACITY_FACTOR = 2;
 
 /**
 * @brief The minimum size of a @c DSBuffer.
 */
-static const int DSBUFFER_MINIMUM_CAPACITY = 20;
+static const size_t DSBUFFER_MINIMUM_CAPACITY = 20;
 
 /**
 * @brief Error codes for @c DSBuffer functions.
