@@ -83,13 +83,12 @@ void* dsiter_value(DSIter *iter) {
 
 size_t dsiter_index(DSIter *iter) {
     if (!iter) { return SIZE_MAX; }
-    return iter->cnt;
+    return iter->cur;
 }
 
 void dsiter_reset(DSIter *iter) {
     if (!iter) { return; }
 
-    iter->cnt = 0;
     iter->cur = 0;
     iter->stat = DSITER_NEW_ITERATOR;
     set_node(iter, NULL);
@@ -115,7 +114,6 @@ DSIter* dsiter_priv_new(enum IterType type, void *target) {
     }
 
     iter->type = type;
-    iter->cnt = 0;
     iter->cur = 0;
     iter->stat = DSITER_NEW_ITERATOR;
     set_node(iter, NULL);

@@ -36,7 +36,6 @@ struct DSIter {
     enum IterType type;
     union IterTarget target;
     size_t cur;
-    size_t cnt;
     union IterNode node;
     int stat;
 };

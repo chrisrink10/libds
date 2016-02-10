@@ -350,12 +350,10 @@ bool dsiter_dslist_next(DSIter *iter, bool advance) {
 
         iter->node.list = iter->target.list->head;
         iter->cur++;
-        iter->cnt++;
         iter->stat = DSITER_NORMAL;
     } else {
         if (advance) {
             iter->cur++;
-            iter->cnt++;
             iter->node.list = (iter->node.list) ? (iter->node.list->next) : NULL;
         }
     }

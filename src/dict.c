@@ -395,7 +395,6 @@ bool dsiter_dsdict_next(DSIter *iter, bool advance) {
     if (iter->node.dict->next) {
         if (advance) {
             iter->node.dict = iter->node.dict->next;
-            iter->cnt++;
         }
         return true;
     }
@@ -406,7 +405,6 @@ bool dsiter_dsdict_next(DSIter *iter, bool advance) {
         if (dict->vals[i]) {
             if (advance) {
                 iter->cur = i;
-                iter->cnt++;
                 iter->node.dict = dict->vals[i];
             }
             return true;

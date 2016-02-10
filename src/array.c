@@ -277,7 +277,6 @@ bool dsiter_dsarray_next(DSIter *iter, bool advance) {
     } else {
         if (advance) {
             iter->cur++;
-            iter->cnt++;
             iter->stat = DSITER_NORMAL;
         }
         void *data = dsarray_get(iter->target.array, iter->cur);
