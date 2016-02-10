@@ -14,5 +14,8 @@
 #include "libds/array.h"
 #include "libds/buffer.h"
 #include "libds/dict.h"
+#include "libds/hash.h"
+#include "libds/iter.h"
+#include "libds/list.h"
 
 #endif //LIBDS_LIBDS_H
