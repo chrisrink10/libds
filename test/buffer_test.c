@@ -45,7 +45,6 @@ void buf_test_append(void) {
 
 void buf_test_append_char(void) {
     /* Verify we don't accept invalid inputs */
-    CU_ASSERT(dsbuf_append_char(buf_test, -1) == false);
     CU_ASSERT(dsbuf_append_char(NULL, 38) == false);
 
     /* Perform the append operation */
@@ -53,6 +52,17 @@ void buf_test_append_char(void) {
     CU_ASSERT(dsbuf_append_char(buf_test, '6') == true);
     CU_ASSERT(dsbuf_len(buf_test) == 1);
     CU_ASSERT(dsbuf_char_at(buf_test, 0) == '6');
+
+    /* Perform append a utf8 character byte-by-byte */
+    CU_ASSERT(dsbuf_append_char(buf_test, '\xF0') == true);
+    CU_ASSERT(dsbuf_append_char(buf_test, '\x9F') == true);
+    CU_ASSERT(dsbuf_append_char(buf_test, '\x86') == true);
+    CU_ASSERT(dsbuf_append_char(buf_test, '\x92') == true);
+    CU_ASSERT(dsbuf_len(buf_test) == 5);
+    CU_ASSERT(dsbuf_char_at(buf_test, 1) == '\xF0');
+    CU_ASSERT(dsbuf_char_at(buf_test, 2) == '\x9F');
+    CU_ASSERT(dsbuf_char_at(buf_test, 3) == '\x86');
+    CU_ASSERT(dsbuf_char_at(buf_test, 4) == '\x92');
 }
 
 void buf_test_append_str(void) {
