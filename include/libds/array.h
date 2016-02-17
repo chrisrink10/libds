@@ -120,6 +120,15 @@ size_t dsarray_cap(DSArray *array);
 void* dsarray_get(DSArray *array, size_t index);
 
 /**
+* @brief Return the top element in the array without popping it.
+*
+* @param array a @c DSArray object
+* @returns @c NULL if there are no elements in the array; the top of
+*          the stack (array) otherwise
+*/
+void* dsarray_top(DSArray *array);
+
+/**
 * @brief Perform the given function on each object in the array.
 *
 * The given function is called for every array element including @c NULL

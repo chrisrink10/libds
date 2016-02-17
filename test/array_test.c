@@ -180,6 +180,29 @@ void array_test_get(void) {
     CU_ASSERT(strcmp(test, dest) == 0);
 }
 
+void array_test_top(void) {
+    char *src = "This is a test string";
+    char *dest = malloc(strlen(src) + 1);
+    char *test = NULL;
+    CU_ASSERT_FATAL(dest != NULL);
+
+    strcpy(dest, src);
+    CU_ASSERT(strcmp(dest, src) == 0);
+
+    /* Do we guard against invalid inputs? */
+    CU_ASSERT(dsarray_top(NULL) == NULL);
+
+    CU_ASSERT(dsarray_top(array_test) == NULL);
+    CU_ASSERT(dsarray_insert(array_test, dest, 0) == true);
+    CU_ASSERT(dsarray_len(array_test) == 1);
+    CU_ASSERT(dsarray_top(array_test) == dest);
+
+    /* Can we get a reference to this object? */
+    test = dsarray_get(array_test, 0);
+    CU_ASSERT(test == dest);
+    CU_ASSERT(strcmp(test, dest) == 0);
+}
+
 void array_test_remove(void) {
     char *src = "This is a test string";
     char *dest = malloc(strlen(src) + 1);

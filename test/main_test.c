@@ -71,6 +71,7 @@ bool setup_array_tests(void)  {
         (CU_add_test(pSuite, "Array Insert", array_test_insert) == NULL) ||
         (CU_add_test(pSuite, "Array Extend", array_test_extend) == NULL) ||
         (CU_add_test(pSuite, "Array Get", array_test_get) == NULL) ||
+        (CU_add_test(pSuite, "Array Top", array_test_top) == NULL) ||
         (CU_add_test(pSuite, "Array Remove", array_test_remove) == NULL) ||
         (CU_add_test(pSuite, "Array Remove by Index", array_test_remove_index) == NULL) ||
         (CU_add_test(pSuite, "Array Get Index", array_test_index) == NULL) ||

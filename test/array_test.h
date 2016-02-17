@@ -17,6 +17,7 @@ void array_test_append(void);
 void array_test_insert(void);
 void array_test_extend(void);
 void array_test_get(void);
+void array_test_top(void);
 void array_test_remove(void);
 void array_test_remove_index(void);
 void array_test_index(void);
