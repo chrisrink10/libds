@@ -93,12 +93,12 @@ void dsbuf_destroy(DSBuffer *str) {
     free(str);
 }
 
-size_t dsbuf_len(DSBuffer *str) {
+size_t dsbuf_len(const DSBuffer *str) {
     assert(str);
     return str->len;
 }
 
-size_t dsbuf_cap(DSBuffer *str) {
+size_t dsbuf_cap(const DSBuffer *str) {
     assert(str);
     return str->cap;
 }
@@ -156,7 +156,7 @@ bool dsbuf_append_str(DSBuffer *str, const char *newstr) {
     return true;
 }
 
-int dsbuf_char_at(DSBuffer *str, size_t pos) {
+int dsbuf_char_at(const DSBuffer *str, size_t pos) {
     if ((!str) || (pos >= str->len)) {
         return DSBUFFER_CHAR_NOT_FOUND;
     }
@@ -164,7 +164,7 @@ int dsbuf_char_at(DSBuffer *str, size_t pos) {
     return str->str[pos];
 }
 
-DSBuffer * dsbuf_substr(DSBuffer *str, size_t start, size_t len) {
+DSBuffer *dsbuf_substr(const DSBuffer *str, size_t start, size_t len) {
     if ((!str) || (start > str->len) || (len > (str->len - start))) {
         return NULL;
     }
@@ -179,7 +179,7 @@ DSBuffer * dsbuf_substr(DSBuffer *str, size_t start, size_t len) {
     return sub;
 }
 
-bool dsbuf_equals(DSBuffer *str, DSBuffer *other) {
+bool dsbuf_equals(const DSBuffer *str, const DSBuffer *other) {
     if ((!str) || (!other)) {
         return false;
     }
@@ -196,13 +196,13 @@ bool dsbuf_equals(DSBuffer *str, DSBuffer *other) {
     return (res == 0);
 }
 
-bool dsbuf_equals_char(DSBuffer *str, const char *other) {
+bool dsbuf_equals_char(const DSBuffer *str, const char *other) {
     if (!str) { return false; }
     int res = strcmp(str->str, other);
     return (res == 0);
 }
 
-const char* dsbuf_char_ptr(DSBuffer *str) {
+const char* dsbuf_char_ptr(const DSBuffer *str) {
     if (!str) {
         return NULL;
     }
@@ -210,7 +210,7 @@ const char* dsbuf_char_ptr(DSBuffer *str) {
     return str->str;
 }
 
-char* dsbuf_to_char_array(DSBuffer *str) {
+char* dsbuf_to_char_array(const DSBuffer *str) {
     if (!str) {
         return NULL;
     }
@@ -227,12 +227,12 @@ char* dsbuf_to_char_array(DSBuffer *str) {
     return cpy;
 }
 
-unsigned int dsbuf_hash(DSBuffer *str) {
+unsigned int dsbuf_hash(const DSBuffer *str) {
     if (!str) { return 0; }
     return (unsigned int) hash_fnv1(str->str);
 }
 
-int dsbuf_compare(DSBuffer *left, DSBuffer *right) {
+int dsbuf_compare(const DSBuffer *left, const DSBuffer *right) {
     if (!left) { return INT_MIN; }
     if (!right) { return INT_MAX; }
     if (left->len < right->len) { return -1; }
@@ -240,7 +240,7 @@ int dsbuf_compare(DSBuffer *left, DSBuffer *right) {
     return memcmp(left->str, right->str, left->len);
 }
 
-bool dsbuf_utf8_validate(DSBuffer *buf, size_t *l) {
+bool dsbuf_utf8_validate(const DSBuffer *buf, size_t *l) {
     if (!buf) { return false; }
 
     bool count = (l != NULL) ? true : false;
@@ -258,7 +258,7 @@ bool dsbuf_utf8_validate(DSBuffer *buf, size_t *l) {
     return true;
 }
 
-size_t dsbuf_utf8_len(DSBuffer *buf) {
+size_t dsbuf_utf8_len(const DSBuffer *buf) {
     if (!buf) { return 0; }
 
     const char *s = buf->str;
