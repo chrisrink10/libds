@@ -27,6 +27,7 @@ bool setup_buffer_tests(void) {
         (CU_add_test(pSuite, "Buffer Append Char", buf_test_append_char) == NULL) ||
         (CU_add_test(pSuite, "Buffer Append Str", buf_test_append_str) == NULL) ||
         (CU_add_test(pSuite, "Buffer Char At", buf_test_char_at) == NULL) ||
+        (CU_add_test(pSuite, "Buffer Duplicate", buf_test_dup) == NULL) ||
         (CU_add_test(pSuite, "Buffer Substring", buf_test_substr) == NULL) ||
         (CU_add_test(pSuite, "Buffer Equals", buf_test_equals) == NULL) ||
         (CU_add_test(pSuite, "Buffer Equals Char*", buf_test_equals_char) == NULL) ||

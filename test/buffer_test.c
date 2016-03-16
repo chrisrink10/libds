@@ -100,6 +100,28 @@ void buf_test_char_at(void) {
     CU_ASSERT(dsbuf_char_at(buf_test, 6) == DSBUFFER_CHAR_NOT_FOUND);
 }
 
+void buf_test_dup(void) {
+    /* Verify we don't accept invalid inputs */
+    CU_ASSERT(dsbuf_dup(NULL) == NULL);
+
+    /* Create a new string and then duplicate */
+    DSBuffer *orig1 = dsbuf_new("Test String");
+    CU_ASSERT(orig1 != NULL);
+    DSBuffer *cpy1 = dsbuf_dup(orig1);
+    CU_ASSERT(dsbuf_equals(orig1, cpy1));
+
+    DSBuffer *orig2 = dsbuf_new_buffer(50);
+    CU_ASSERT(orig2 != NULL);
+    DSBuffer *cpy2 = dsbuf_dup(orig2);
+    CU_ASSERT(dsbuf_equals(orig2, cpy2));
+
+    /* Clean up after ourselves */
+    dsbuf_destroy(orig1);
+    dsbuf_destroy(cpy1);
+    dsbuf_destroy(orig2);
+    dsbuf_destroy(cpy2);
+}
+
 void buf_test_substr(void) {
     DSBuffer *full = dsbuf_new("Full String with Substring");
     CU_ASSERT_FATAL(full != NULL);

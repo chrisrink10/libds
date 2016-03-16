@@ -30,57 +30,53 @@ static int utf8_validate_char(const char *s, const char *e);
  * BUFFER PUBLIC FUNCTIONS
  */
 
-DSBuffer * dsbuf_new(const char *value) {
+DSBuffer *dsbuf_new(const char *value) {
     size_t len = strlen(value);
     return dsbuf_new_l(value, len);
 }
 
-DSBuffer * dsbuf_new_l(const char *value, size_t len) {
+DSBuffer *dsbuf_new_l(const char *value, size_t len) {
     if (len < 1) {
         return NULL;
     }
 
     DSBuffer *s = malloc(sizeof(DSBuffer));
     if (!s) {
-        goto cleanup_gbuf;
+        return NULL;
     }
 
     s->len = len;
     s->cap = len * DSBUFFER_CAPACITY_FACTOR;
     s->str = malloc(s->cap);
     if (!s->str) {
-        goto cleanup_dsbuf_str;
+        goto cleanup_dsbuf;
     }
 
     memcpy(s->str, value, len);
     memset(&s->str[len], '\0', (s->cap - len));
     return s;
 
-cleanup_dsbuf_str:
-    free(s->str);
-cleanup_gbuf:
+cleanup_dsbuf:
     free(s);
     return NULL;
 }
 
-DSBuffer * dsbuf_new_buffer(size_t cap) {
+DSBuffer *dsbuf_new_buffer(size_t cap) {
     cap = (cap < DSBUFFER_MINIMUM_CAPACITY) ? DSBUFFER_MINIMUM_CAPACITY : cap;
 
     DSBuffer *s = malloc(sizeof(DSBuffer));
     if (!s) {
-        goto cleanup_dsbuf_buffer;
+        return NULL;
     }
 
     s->len = 0;
     s->cap = cap;
-    s->str = calloc(s->cap, sizeof(char*));
+    s->str = malloc(s->cap);
     if (!s->str) {
-        goto cleanup_dsbuf_buffer_str;
+        goto cleanup_dsbuf_buffer;
     }
     return s;
 
-cleanup_dsbuf_buffer_str:
-    free(s->str);
 cleanup_dsbuf_buffer:
     free(s);
     return NULL;
@@ -91,6 +87,29 @@ void dsbuf_destroy(DSBuffer *str) {
     free(str->str);
     str->str = NULL;
     free(str);
+}
+
+DSBuffer *dsbuf_dup(const DSBuffer *str) {
+    if (!str) { return NULL; }
+
+    DSBuffer *s = malloc(sizeof(DSBuffer));
+    if (!s) {
+        return NULL;
+    }
+
+    s->len = str->len;
+    s->cap = str->cap;
+    s->str = malloc(s->cap);
+    if (!s->str) {
+        goto cleanup_dsbuf_dup;
+    }
+
+    memcpy(s->str, &str->str[0], s->len);
+    return s;
+
+cleanup_dsbuf_dup:
+    free(s);
+    return NULL;
 }
 
 size_t dsbuf_len(const DSBuffer *str) {
@@ -202,7 +221,7 @@ bool dsbuf_equals_char(const DSBuffer *str, const char *other) {
     return (res == 0);
 }
 
-const char* dsbuf_char_ptr(const DSBuffer *str) {
+const char *dsbuf_char_ptr(const DSBuffer *str) {
     if (!str) {
         return NULL;
     }
@@ -210,20 +229,19 @@ const char* dsbuf_char_ptr(const DSBuffer *str) {
     return str->str;
 }
 
-char* dsbuf_to_char_array(const DSBuffer *str) {
+char *dsbuf_to_char_array(const DSBuffer *str) {
     if (!str) {
         return NULL;
     }
 
     size_t m = (str->len) + 1;
-    char* cpy = calloc(m, m);
+    char* cpy = malloc(m);
     if (!cpy) {
         return NULL;
     }
 
-    /* Use strncpy here since we can only return a C-string (NUL terminated),
-     * rather than memcpy like the rest of the gbuf functions */
-    strncpy(cpy, str->str, str->len);
+    memcpy(cpy, str->str, str->len);
+    str->str[str->len] = '\0';
     return cpy;
 }
 

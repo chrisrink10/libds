@@ -17,6 +17,7 @@ void buf_test_append(void);
 void buf_test_append_char(void);
 void buf_test_append_str(void);
 void buf_test_char_at(void);
+void buf_test_dup(void);
 void buf_test_substr(void);
 void buf_test_equals(void);
 void buf_test_equals_char(void);
