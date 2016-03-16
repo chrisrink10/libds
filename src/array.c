@@ -40,7 +40,7 @@ DSArray* dsarray_new_cap(size_t cap, dsarray_compare_fn cmpfn, dsarray_free_fn f
         return NULL;
     }
 
-    array->data = calloc(cap, sizeof(void*) * cap);
+    array->data = calloc(cap, sizeof(void *));
     if (!array->data) {
         free(array);
         return NULL;
@@ -237,7 +237,7 @@ static bool dsarray_resize(DSArray *array, size_t cap) {
     }
 
     void **cache = array->data;
-    array->data = malloc(sizeof(void*) * cap);
+    array->data = calloc(cap, sizeof(void *));
     if (!array->data) {
         array->data = cache;
         return false;

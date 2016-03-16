@@ -64,8 +64,8 @@ DSDict *dsdict_new(dsdict_hash_fn hash, dsdict_compare_fn cmpfn, dsdict_free_fn 
         return NULL;
     }
 
-    size_t cap = sizeof(struct bucket *) * DSDICT_DEFAULT_CAP;
-    dict->vals = calloc(cap, sizeof(struct bucket *));
+    size_t cap = DSDICT_DEFAULT_CAP;
+    dict->vals = calloc(cap, sizeof(struct bucket));
     if (!dict->vals) {
         free(dict);
         return NULL;
