@@ -13,6 +13,7 @@
 
 void array_test_setup(void);
 void array_test_teardown(void);
+void array_test_literal(void);
 void array_test_append(void);
 void array_test_insert(void);
 void array_test_extend(void);

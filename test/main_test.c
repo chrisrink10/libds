@@ -68,7 +68,8 @@ bool setup_array_tests(void)  {
     }
 
     /* add the tests to the suite */
-    if ((CU_add_test(pSuite, "Array Append", array_test_append) == NULL) ||
+    if ((CU_add_test(pSuite, "Array Literal", array_test_literal) == NULL) ||
+        (CU_add_test(pSuite, "Array Append", array_test_append) == NULL) ||
         (CU_add_test(pSuite, "Array Insert", array_test_insert) == NULL) ||
         (CU_add_test(pSuite, "Array Extend", array_test_extend) == NULL) ||
         (CU_add_test(pSuite, "Array Get", array_test_get) == NULL) ||

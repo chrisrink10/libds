@@ -30,6 +30,40 @@ void array_test_teardown(void) {
     array_test = NULL;
 }
 
+void array_test_literal(void) {
+    /* Test for invalid inputs */
+    CU_ASSERT(dsarray_new_lit(NULL, 5, 5, NULL, NULL) == NULL);
+    CU_ASSERT(dsarray_new_lit((void*[]) {}, 5, 2, NULL, NULL) == NULL);
+
+    /* Create a new literal (with a free function) */
+    DSArray *lit = dsarray_new_lit(((void*[]) {
+        dsbuf_new("Test 0"),
+        dsbuf_new("Test 1"),
+        dsbuf_new("Test 2"),
+        dsbuf_new("Test 3"),
+        dsbuf_new("Test 4"),
+        dsbuf_new("Test 5"),
+    }), 6, 6, NULL, (dsarray_free_fn)dsbuf_destroy);
+    CU_ASSERT_FATAL(lit != NULL);
+    CU_ASSERT(dsarray_len(lit) == 6);
+    CU_ASSERT(dsarray_cap(lit) == 6);
+
+    /* Can we add multiple? */
+    for (size_t i = 0; i < 6; i++) {
+        char *some = "Test %d";
+        char *next = malloc(strlen(some) + 1);
+        CU_ASSERT_FATAL(next != NULL);
+        sprintf(next, some, i);
+
+        /* Verify equality */
+        const DSBuffer *buf = dsarray_get(lit, i);
+        CU_ASSERT(dsbuf_equals_char(buf, next));
+    }
+
+    /* Clean up after ourselves */
+    dsarray_destroy(lit);
+}
+
 void array_test_append(void) {
     char *src = "This is a test string";
     char *dest = malloc(strlen(src) + 1);
